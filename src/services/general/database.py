@@ -13,14 +13,13 @@ class Database:
     def get(self) -> 'pd.DataFrame':
         try:
             with self.__engine.connect() as connection:
-                metadata = db.MetaData(schema=self.__schema)
-                sct = db.Table(self.__table_name, metadata,
-                               autoload=True, autoload_with=self.__engine)
-                query = db.select([sct])
+                query = db.text(f"SELECT * FROM {self.__schema}.{self.__table_name}")
+
                 df = pd.read_sql(query, connection)
                 df['lineid'] = df['lineid'].astype(int)
                 return df
         except Exception as e:
+            print('Error while reading data from database')
             print(e)
 
     def post(self, df: 'pd.DataFrame') -> None:
