@@ -4,6 +4,29 @@ from sqlalchemy import create_engine
 
 
 class Config:
+    # CodeId	A:Active	A:SCT_TermID	A:Lang	LongName	A:SNOMEDCT	A:ICD-O-3_Morfologia	A:Legacy_ConceptID	A:SCT_Concept_FSN	A:Concept_Category	A:GUI_Category	ParentId	BeginningDate	ExpiringDate	A:InaktivoinninSelite	A:KorvaavaKoodi	HierarchyLevel	ANUM:JarjestysNro	CreatedDate
+    columns = {
+        "primary_key": "CodeId",
+        "active": "A:Active",
+        "termid": "A:SCT_TermID",
+        "lang": "A:Lang",
+        "term": "LongName",
+        "conceptid": "A:SNOMEDCT",
+        "icd": "A:ICD-O-3_Morfologia",
+        "legacy_conceptid": "A:Legacy_ConceptID",
+        "fsn": "A:SCT_Concept_FSN",
+        "parentid": "ParentId",
+        "beginning_date": "BeginningDate",
+        "expiring_date": "ExpiringDate",
+        "inaktivoinnin_selite": "A:InaktivoinninSelite",
+        "korvaava_koodi": "A:KorvaavaKoodi",
+        "comment": "comment",
+    }
+
+        
+
+
+
     def __init__(self):
         self.__database_connection = None
         self.__database_schema = None

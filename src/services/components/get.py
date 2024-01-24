@@ -5,8 +5,7 @@ import pandas as pd
 class Get:
     @staticmethod
     def edit_rows(table: 'pd.DataFrame'):
-        table = table[table['status'] != 'new']
-        return table[(table['lineid'].duplicated(keep=False))].copy()
+        return table[table['status'] == 'edit'].copy()
 
     @staticmethod
     def new_rows(table: 'pd.DataFrame'):
@@ -81,3 +80,21 @@ class Get:
             fin_id_max = fin_id_series.max()
         fin_id_max += 1
         return fin_id_max
+    
+    @staticmethod
+    def bundles(row: 'pd.DataFrame', database: 'pd.DataFrame'):
+        """Get all rows associated with an en-row
+
+        Use sct_termdid_en which is the same 
+
+        Args:
+            row (pd.DataFrame): _description_
+            database (pd.DataFrame): _description_
+
+        Returns:
+            _type_: _description_
+        """
+        bundles = []
+        for lineid in set(row['sct_termid_en']):
+            bundles.append(database[database['sct_termid_en'] == lineid])
+        return bundles

@@ -20,17 +20,17 @@ class Main:
 
     def __get_update_types(self, excel: 'pd.DataFrame'):
         new_rows = Get.new_rows(excel)
-        updated_rows = Get.edit_rows(excel)
+        edit_rows = Get.edit_rows(excel)
         inactivated_rows = Get.inactivated_rows(excel)
-        return new_rows, updated_rows, inactivated_rows
+        return new_rows, edit_rows, inactivated_rows
 
     def run(self):
         excel, database = self.__get_tables()
-        print(excel)
-        print(database)
-        # new_rows, updated_rows, inactivated_rows = self.__get_update_types(
-        #     excel)
-        # table = self.__handle_updated_rows(updated_rows, database)
+        new_rows, edit_rows, inactivated_rows = self.__get_update_types(
+            excel)
+        
+        print(edit_rows)
+        # table = self.__handle_updated_rows(edit_rows, database)
         # table = self.__handle_inactivated_rows(inactivated_rows, table)
         # table = self.__handle_new_rows(new_rows, table)
         # table = self.__component.empty_status_column(table)
@@ -136,8 +136,8 @@ class Main:
     #         raise Exception("Bundle does not have an english row")
     #     return database
 
-    # def __handle_updated_rows(self, updated_rows: 'pd.DataFrame', database: 'pd.DataFrame'):
-    #     bundles = self.__component.create_bundles(updated_rows)
+    # def __handle_updated_rows(self, edit_rows: 'pd.DataFrame', database: 'pd.DataFrame'):
+    #     bundles = self.__component.create_bundles(edit_rows)
     #     for bundle in bundles:
     #         database = self.__handle_edit_bundle(bundle, database)
     #     return database
@@ -164,6 +164,3 @@ class Main:
     #         database = self.__component.handle_activated_row(
     #             database, row, index)
     #     return database
-
-
-  
