@@ -12,11 +12,12 @@ class Put:
         return table
 
     @staticmethod
-    def activated_row(table: 'pd.DataFrame', activated_row: 'pd.Series', index: int):
-        table.loc[index, 'in_use'] = 'Y'
-        table.loc[index, 'effectivetime'] = activated_row['effectivetime']
-        table.loc[index, 'supersededtime'] = activated_row['supersededtime']
-        table.loc[index, 'inaktivoinnin_selite'] = None
+    def activated_row(table: 'pd.DataFrame', index: int, beginning_date: str, expiring_date: str, edit_comment: str):
+        table.loc[index, COLUMNS["active"]] = "Y"
+        table.loc[index, COLUMNS["beginning_date"]] = beginning_date
+        table.loc[index, COLUMNS["expiring_date"]] = expiring_date
+        table.loc[index, COLUMNS["inaktivoinnin_selite"]] = None
+        table.loc[index, COLUMNS["edit_comment"]] = edit_comment
         return table
     
     # @staticmethod
