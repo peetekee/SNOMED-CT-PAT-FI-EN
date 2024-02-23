@@ -2,29 +2,71 @@ import os
 from dotenv import load_dotenv
 from sqlalchemy import create_engine
 
+COLUMNS = {
+    "code_id": "CodeId",
+    "status": "status",
+    "gui_category": "A:GUI_Category",
+    "lang": "A:Lang",
+    "active": "A:Active",
+    "legacy_concept_id": "A:Legacy_ConceptID",
+    "legacy_term_id": "A:Legacy_TermID",
+    "tays_snomed_ii": "tays_snomed_ii",
+    "concept_id": "A:SNOMEDCT",
+    "concept_fsn": "A:SCT_Concept_FSN",
+    "term_id": "A:SCT_TermID",
+    "en_row_code_id": "ParentId",
+    "term": "LongName",
+    "parent_concept_id": "parent_conceptid",
+    "parent_concept_fsn": "parent_concept_fsn",
+    "edit_comment": "edit_comment",
+    "av_notes": "av_notes",
+    "icdo_morfologia": "A:ICD-O-3_Morfologia",
+    "icdo_term": "A:ICD-O-3_Term",
+    "icdo_synonyms": "A:ICD-O-3_Synonyms",
+    "beginning_date": "BeginningDate",
+    "expiring_date": "ExpiringDate",
+    "korvaava_koodi": "A:KorvaavaKoodi",
+    "inaktivoinnin_selite": "A:InaktivoinninSelite",
+    "sn2_code": "sn2_code",
+    "sn2_term": "sn2_term",
+    "endo": "endo",
+    "gastro": "gastro",
+    "gyne": "gyne",
+    "iho": "iho",
+    "hema": "hema",
+    "keuhko": "keuhko",
+    "nefro": "nefro",
+    "neuro": "neuro",
+    "paa_kaula": "paa_kaula",
+    "pedi": "pedi",
+    "pehmyt": "pehmyt",
+    "rinta": "rinta",
+    "syto": "syto",
+    "uro": "uro",
+    "verenkierto_yleiset": "verenkierto_yleiset"
+}
+
+
 
 class Config:
-    # CodeId	A:Active	A:SCT_TermID	A:Lang	LongName	A:SNOMEDCT	A:ICD-O-3_Morfologia	A:Legacy_ConceptID	A:SCT_Concept_FSN	A:Concept_Category	A:GUI_Category	ParentId	BeginningDate	ExpiringDate	A:InaktivoinninSelite	A:KorvaavaKoodi	HierarchyLevel	ANUM:JarjestysNro	CreatedDate
-    columns = {
-        "primary_key": "CodeId",
-        "active": "A:Active",
-        "termid": "A:SCT_TermID",
-        "lang": "A:Lang",
-        "term": "LongName",
-        "conceptid": "A:SNOMEDCT",
-        "icd": "A:ICD-O-3_Morfologia",
-        "legacy_conceptid": "A:Legacy_ConceptID",
-        "fsn": "A:SCT_Concept_FSN",
-        "parentid": "ParentId",
-        "beginning_date": "BeginningDate",
-        "expiring_date": "ExpiringDate",
-        "inaktivoinnin_selite": "A:InaktivoinninSelite",
-        "korvaava_koodi": "A:KorvaavaKoodi",
-        "comment": "comment",
-    }
+    """Class for configuration
 
-        
+    Includes basic configuration for the application
+    Includes database connection, schema, table, excel file, excel sheet, output file and output table
 
+    Attributes:
+        __database_connection (sqlalchemy.engine.base.Engine): Database connection
+        __database_schema (str): Database schema
+        __table_name (str): Table name
+        __excel_path (str): Excel file path
+        __excel_sheet (str): Excel sheet name
+        __output_file (str): Output file path
+        __output_table (str): Output table name
+
+    Class variables:
+        columns (dict): Keys are the column names used in the application and
+                        values are the column names in the database.
+    """
 
 
     def __init__(self):

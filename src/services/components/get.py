@@ -1,23 +1,24 @@
 import re
 import pandas as pd
+from config import COLUMNS
 
 
 class Get:
     @staticmethod
     def edit_rows(table: 'pd.DataFrame'):
-        return table[table['status'] == 'edit'].copy()
+        return table[table[COLUMNS["status"]] == "edit"].copy()
 
     @staticmethod
     def new_rows(table: 'pd.DataFrame'):
-        return table[table['status'] == 'new'].copy()
+        return table[table[COLUMNS["status"]] == "new"].copy()
 
     @staticmethod
     def activated_rows(table: 'pd.DataFrame'):
-        return table[table['status'] == 'activated'].copy()
+        return table[table[COLUMNS["status"]] == "activated"].copy()
 
     @staticmethod
     def inactivated_rows(table: 'pd.DataFrame'):
-        return table[table['status'] == 'inactivate'].copy()
+        return table[table[COLUMNS["status"]] == "inactivate"].copy()
 
     @staticmethod
     def en_row(table: 'pd.DataFrame'):
@@ -29,7 +30,9 @@ class Get:
 
     @staticmethod
     def lang_rows_by_en(table: 'pd.DataFrame', en_row: 'pd.DataFrame'):
-        return table[table['sct_termid_en'] == en_row['sct_termid_en']].copy()
+        print(en_row[COLUMNS["en_row_code_id"]])
+        print(table[COLUMNS["en_row_code_id"]])
+        return table[table[COLUMNS["en_row_code_id"]] == int(en_row[COLUMNS["en_row_code_id"]])].copy()
 
     @staticmethod
     def old_row(table: 'pd.DataFrame'):
@@ -46,7 +49,7 @@ class Get:
 
     @staticmethod
     def index_by_codeid(table: 'pd.DataFrame', lineid: int):
-        return table.loc[table['lineid'] == int(lineid)].index.values[0]
+        return table.loc[table[COLUMNS["code_id"]] == int(lineid)].index.values[0]
 
     @staticmethod
     def row_by_codeid(table: 'pd.DataFrame', lineid: int):

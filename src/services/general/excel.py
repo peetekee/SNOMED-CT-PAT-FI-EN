@@ -1,4 +1,5 @@
 import pandas as pd
+from config import COLUMNS
 
 
 class Excel:
@@ -9,8 +10,8 @@ class Excel:
         return pd.read_excel(self.__config.excel_path, engine="openpyxl", dtype=str, sheet_name=self.__config.excel_sheet)
 
     def post(self, table: 'pd.DataFrame'):
-        table[["lineid", "sct_conceptid", "sct_termid", "sct_termid_en"]] = table[[
-            "lineid", "sct_conceptid", "sct_termid", "sct_termid_en"]].astype(str)
+        table[[COLUMNS["code_id"], COLUMNS["concept_id"], COLUMNS["term_id"], COLUMNS["en_row_code_id"]]] = table[[
+            COLUMNS["code_id"], COLUMNS["concept_id"], COLUMNS["term_id"], COLUMNS["en_row_code_id"]]].astype(str)
         table = table.sort_values(
-            by=["legacy_conceptid", "sct_termid_en", "lang"])
+            by=[COLUMNS["legacy_concept_id"], COLUMNS["en_row_code_id"], COLUMNS["lang"]])
         table.to_excel(self.__config.output_file, index=False)

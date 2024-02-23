@@ -1,6 +1,7 @@
 import pandas as pd
 import sqlalchemy as db
 from datetime import datetime
+from config import COLUMNS
 
 
 class Database:
@@ -16,7 +17,7 @@ class Database:
                 query = db.text(f"SELECT * FROM {self.__schema}.{self.__table_name}")
 
                 df = pd.read_sql(query, connection)
-                df['lineid'] = df['lineid'].astype(int)
+                df[COLUMNS["code_id"]] = df[COLUMNS["code_id"]].astype(int)
                 return df
         except Exception as e:
             print('Error while reading data from database')
