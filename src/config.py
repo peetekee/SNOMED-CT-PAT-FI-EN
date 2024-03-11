@@ -77,6 +77,9 @@ class Config:
         self.__excel_sheet = None
         self.__output_file = None
         self.__output_table = None
+        self.__version_date = None
+        self.__default_expiring_date = None
+        self.__langs = ["fi", "sv"]
         self.__initialize()
 
     @property
@@ -106,6 +109,18 @@ class Config:
     @property
     def output_table(self):
         return self.__output_table
+    
+    @property
+    def version_date(self):
+        return self.__version_date
+    
+    @property
+    def default_expiring_date(self):
+        return self.__default_expiring_date
+    
+    @property
+    def langs(self):
+        return self.__langs
 
     def __initialize(self):
         dirname = os.path.dirname(__file__)
@@ -125,3 +140,5 @@ class Config:
         output_file_name = os.getenv("OUTPUT_FILE")
         self.__output_file = os.path.join(dirname, "..", output_file_name)
         self.__output_table = os.getenv("OUTPUT_TABLE")
+        self.__version_date = str(os.getenv("DATE"))
+        self.__default_expiring_date = str(os.getenv("DEFAULT_EXPIRING_DATE"))

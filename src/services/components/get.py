@@ -11,6 +11,10 @@ class Get:
     @staticmethod
     def new_rows(table: 'pd.DataFrame'):
         return table[table[COLUMNS["status"]] == "new"].copy()
+    
+    @staticmethod
+    def fsn_rows(table: 'pd.DataFrame'):
+        return table[table[COLUMNS["status"]] == "fsn"].copy()
 
     @staticmethod
     def activated_rows(table: 'pd.DataFrame'):
@@ -22,7 +26,7 @@ class Get:
 
     @staticmethod
     def en_row(table: 'pd.DataFrame'):
-        return table[table['lang'] == 'en'].copy()
+        return table[table[COLUMNS["lang"]] == 'en'].copy()
 
     @staticmethod
     def lang_rows(table: 'pd.DataFrame'):
@@ -30,8 +34,6 @@ class Get:
 
     @staticmethod
     def lang_rows_by_en(table: 'pd.DataFrame', en_row: 'pd.DataFrame'):
-        print(en_row[COLUMNS["en_row_code_id"]])
-        print(table[COLUMNS["en_row_code_id"]])
         return table[table[COLUMNS["en_row_code_id"]] == int(en_row[COLUMNS["en_row_code_id"]])].copy()
 
     @staticmethod
@@ -44,7 +46,7 @@ class Get:
 
     @staticmethod
     def table_index(table: 'pd.DataFrame', row: 'pd.DataFrame'):
-        return table.loc[table['lineid'] ==
+        return table.loc[table[COLUMNS["code_id"]] ==
                          row['lineid']].index[0]
 
     @staticmethod
@@ -60,12 +62,11 @@ class Get:
         return table.iloc[index].copy()
 
     @staticmethod
-    def get_next_codeid(table: 'pd.DataFrame'):
-        return int(table['lineid'].astype(int).max() + 1)
+    def next_codeid(table: 'pd.DataFrame'):
+        return int(table[COLUMNS["code_id"]].astype(int).max() + 1)
 
     @staticmethod
-    def get_legacyid(self, row: 'pd.DataFrame', column: str):
-        legacyid = row[column]
+    def legacyid(legacyid: str):
         if not re.fullmatch(r".+-\d*", legacyid):
             return None
         sn2, sct_id = legacyid.split('-')

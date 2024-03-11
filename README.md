@@ -43,6 +43,19 @@ status sarakkeen arvon tulee olla "inactivate"
     - 
 
 
+new_concept
+new_term
+nationalize_concept
+nationalize_term
+fsn
+administrative
+new
+inactivate
+activate
+other
+
+
+
 ```mermaid
     classDiagram
     direction LR
