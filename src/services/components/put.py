@@ -26,6 +26,12 @@ class Put:
         table.loc[index, COLUMNS["edit_comment"]] = edit_comment
         return table
     
+    @staticmethod
+    def administrative_columns(table: 'pd.DataFrame', index: int, en_row: 'pd.Series', administrative_columns: list[str]):
+        for column in administrative_columns:
+            table.loc[index, column] = en_row[column]
+        return table
+    
     # @staticmethod
     # def handle_old_row(table: 'pd.DataFrame', old_row: 'pd.Series', index: int, new_lineid: int):
     #     table.loc[index, :] = old_row[:]
