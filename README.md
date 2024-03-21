@@ -52,7 +52,7 @@ status sarakkeen arvon tulee olla "inactivate"
 [x] new
 [x] inactivate
 [x] activate
-[] other
+[] other | should be done last. The general nature makes it difficult.
 
 
 
