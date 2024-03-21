@@ -102,3 +102,18 @@ class Get:
         for lineid in set(row['sct_termid_en']):
             bundles.append(database[database['sct_termid_en'] == lineid])
         return bundles
+    
+    @staticmethod
+    def edit_en_row_pairs(table: 'pd.DataFrame', status_value: str):
+        edit_rows = table[table[COLUMNS["status"]] == status_value].copy()
+        # Get all the old rows and create the namedtuples
+        edit_en_row_pairs = []
+        for _, row in edit_rows.iterrows():
+            # only one old row should exist
+            old_row = table[table[COLUMNS["code_id"]] == row[COLUMNS["en_row_code_id"]]].iloc[0].copy()
+            edit_en_row_pairs.append((old_row, row))
+        
+        return edit_en_row_pairs
+
+
+        

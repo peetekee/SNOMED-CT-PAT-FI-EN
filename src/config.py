@@ -5,7 +5,7 @@ from sqlalchemy import create_engine
 COLUMNS = {
     "code_id": "CodeId",
     "status": "status",
-    "gui_category": "A:GUI_Category",
+    "tmdc": "tmdc",
     "lang": "A:Lang",
     "active": "A:Active",
     "legacy_concept_id": "A:Legacy_ConceptID",
@@ -19,7 +19,6 @@ COLUMNS = {
     "parent_concept_id": "parent_conceptid",
     "parent_concept_fsn": "parent_concept_fsn",
     "edit_comment": "edit_comment",
-    "av_notes": "av_notes",
     "icdo_morfologia": "A:ICD-O-3_Morfologia",
     "icdo_term": "icdo_term",
     "icdo_synonyms": "icdo_synonyms",
@@ -44,6 +43,21 @@ COLUMNS = {
     "syto": "syto",
     "uro": "uro",
     "verenkierto_yleiset": "verenkierto_yleiset"
+}
+
+# EDIT_TYPES = ["new_concept", "new_term", "nationalize_concept", "nationalize_term"]
+# make this into an dictionary, for now the keys are the same as the values
+UPDATE_TYPES = {
+    "new_concept": "new_concept",
+    "new_term": "new_term",
+    "nationalize_concept": "nationalize_concept",
+    "nationalize_term": "nationalize_term",
+    "fsn": "fsn",
+    "administrative": "administrative",
+    "new": "new",
+    "inactivate": "inactivate",
+    "activate": "activate",
+    "other": "other"
 }
 
 

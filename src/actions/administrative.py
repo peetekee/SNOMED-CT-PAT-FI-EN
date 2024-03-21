@@ -11,7 +11,6 @@ class Administrative:
         COLUMNS["parent_concept_id"],
         COLUMNS["parent_concept_fsn"],
         COLUMNS["edit_comment"],
-        COLUMNS["av_notes"],
         COLUMNS["icdo_term"],
         COLUMNS["icdo_synonyms"],
         COLUMNS["sn2_code"],

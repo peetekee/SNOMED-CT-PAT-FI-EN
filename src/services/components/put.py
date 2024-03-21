@@ -4,11 +4,12 @@ from config import COLUMNS
 
 class Put:
     @staticmethod
-    def inactivated_row(table: 'pd.DataFrame', index: int, expiring_date: str, inaktivoinnin_selite: str, edit_comment: str):
+    def inactivated_row(table: 'pd.DataFrame', index: int, expiring_date: str, inaktivoinnin_selite: str, edit_comment: str, korvaava_koodi = ""):
         table.loc[index, COLUMNS["active"]] = "N"
         table.loc[index, COLUMNS["expiring_date"]] = expiring_date
         table.loc[index, COLUMNS["inaktivoinnin_selite"]] = inaktivoinnin_selite
         table.loc[index, COLUMNS["edit_comment"]] = edit_comment
+        table.loc[index, COLUMNS["korvaava_koodi"]] = korvaava_koodi
         return table
 
     @staticmethod
