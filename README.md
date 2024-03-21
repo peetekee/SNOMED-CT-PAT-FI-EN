@@ -62,25 +62,21 @@ status sarakkeen arvon tulee olla "inactivate"
     Matias --|> Koulu
     Matias --|> Tärkein-eli-Noora
     Koulu --|> HY
-    Koulu --|> Aalto
     HY --|> Tietojenkäsittelytiede
     HY --|> Matematiikka
     Tietojenkäsittelytiede --|> Kandi
-    Matematiikka --|> Koneoppimisen matematiikan perusteet I
     Matematiikka --|> Koneoppimisen matematiikan perusteet II
     Matematiikka --|> Tilastollinen päättely I
-    Aalto --|> Yrityksen talouden johtaminen ja raportointi
-    Aalto --|> Tilinpäätösraportointi
     Matias --|> HUS
-    HUS --|> Kandi
-    HUS --|> OMOP Arkkitehtuuri
-    Matias --|> Datasta voimaa sote-järjestelmään työryhmä
-    Sitra --|> Datasta voimaa sote-järjestelmään työryhmä
-    STM --|> Datasta voimaa sote-järjestelmään työryhmä
-    LANU --|> Datasta voimaa sote-järjestelmään työryhmä
+    HUS --|> ONCOVALUE
+    ONCOVALUE --|> WP5
+    WP5 --|> Kandi
+    HUS --|> QUANTUM Label
     Koulu --|> AMC
+    Kandi --|> AMC
     AMC --|> Pre-masters
     AMC --|> Asunto
+    AMC --|> English Proficiency Test
     Pre-masters --|> Basics of Medicine
     Pre-masters --|> Biostatistics
     Pre-masters --|> Medical process and Medical decision making

@@ -4,7 +4,7 @@ from services.components import Get, Put
 from services.general import Verhoeff
 
 
-class NewConcept:
+class NewTerm:
 
     COPY_COLUMNS = [
         COLUMNS["tmdc"],
@@ -33,9 +33,9 @@ class NewConcept:
         COLUMNS["verenkierto_yleiset"]
     ]
 
-    def __init__(self, database: 'pd.DataFrame', new_concept_en_rows: 'list'):
+    def __init__(self, database: 'pd.DataFrame', new_term_en_rows: 'list'):
         self.__database = database
-        self.__new_concept_en_rows = new_concept_en_rows
+        self.__new_term_en_rows = new_term_en_rows
         self.__verhoeff = Verhoeff()
         self.__config = Config()
 
@@ -58,51 +58,33 @@ class NewConcept:
                 new_en_row[column] = old_en_row[column]
         return new_en_row
 
-    def __set_concept_id(self, new_en_row: 'pd.Series'):
-        concept_sn2, concept_sct = Get.legacyid(
-            new_en_row[COLUMNS["legacy_concept_id"]])
-        if concept_sn2 == None:
+    def __set_term_id(self, new_en_row: 'pd.Series', old_en_row: 'pd.Series'):
+        term_sn2, term_sct = Get.legacyid(new_en_row[COLUMNS["legacy_term_id"]])
+        if term_sn2 == None:
             raise Exception(
-                "One of the new_concept rows has missing or invalid legacy conceptid SN2 part")
-        if concept_sct == None:
-            concept_integer = Get.next_fin_extension_id(
-                self.__database, COLUMNS["legacy_concept_id"])
-            concept_sct = self.__verhoeff.generateVerhoeff(
-                concept_integer, "10")
+                "One of the new rows has missing or invalid legacy termid SN2 part")
+        if term_sct == None:
+            term_integer = Get.next_fin_extension_id(
+                self.__database, COLUMNS["legacy_term_id"])
+            term_sct = self.__verhoeff.generateVerhoeff(term_integer,"11")
 
-        new_en_row[COLUMNS["legacy_concept_id"]
-                   ] = f"{concept_sn2}-{concept_sct}"
-        new_en_row[COLUMNS["concept_id"]] = concept_sct
-        return new_en_row, concept_sn2
-
-    def __set_term_id(self, new_en_row: 'pd.Series', sn2: str):
-        if sn2 == None:
-            raise Exception(
-                "One of the new_concept rows has missing or invalid legacy termid SN2 part")
-        term_integer = Get.next_fin_extension_id(
-            self.__database, COLUMNS["legacy_term_id"])
-        term_sct = self.__verhoeff.generateVerhoeff(term_integer, "11")
-
-        new_en_row[COLUMNS["legacy_term_id"]] = f"{sn2}-{term_sct}"
+        new_en_row[COLUMNS["legacy_term_id"]] = f"{term_sn2}-{term_sct}"
         new_en_row[COLUMNS["term_id"]] = term_sct
         return new_en_row
 
-    def __set_fsn_and_term(self, new_en_row: 'pd.Series', old_en_row: 'pd.Series'):
+    def __set_fsn(self, new_en_row: 'pd.Series', old_en_row: 'pd.Series'):
         # if the new rows has no value, copy the value from the old row
         if pd.isnull(new_en_row[COLUMNS["concept_fsn"]]):
             new_en_row[COLUMNS["concept_fsn"]
                        ] = old_en_row[COLUMNS["concept_fsn"]]
-        if pd.isnull(new_en_row[COLUMNS["term"]]):
-            new_en_row[COLUMNS["term"]] = old_en_row[COLUMNS["term"]]
         return new_en_row
 
     def __set_en_row(self, new_en_row: 'pd.Series', old_en_row: 'pd.Series'):
         new_en_row = self.__set_code_id(new_en_row)
         new_en_row = self.__set_date(new_en_row)
         new_en_row = self.__set_administrative(new_en_row, old_en_row)
-        new_en_row, sn2 = self.__set_concept_id(new_en_row)
-        new_en_row = self.__set_term_id(new_en_row, sn2)
-        new_en_row = self.__set_fsn_and_term(new_en_row, old_en_row)
+        new_en_row = self.__set_term_id(new_en_row, old_en_row)
+        new_en_row = self.__set_fsn(new_en_row, old_en_row)
         # inactivate the old en row
         index = Get.index_by_codeid(
             self.__database, old_en_row[COLUMNS["code_id"]])
@@ -111,7 +93,7 @@ class NewConcept:
         self.__database = pd.concat(
             [self.__database, new_en_row.to_frame().T], ignore_index=True)
         return new_en_row
-
+    
     def __set_lang_rows(self, new_en_row: 'pd.Series', old_en_row: 'pd.Series'):
         old_lang_rows = Get.lang_rows_by_en(self.__database, old_en_row)
         for _, old_lang_row in old_lang_rows.iterrows():
@@ -134,9 +116,7 @@ class NewConcept:
                              ] = new_en_row[COLUMNS["term_id"]]
                 new_lang_row[COLUMNS["term"]] = new_en_row[COLUMNS["term"]]
             else:
-                # get sn2 from the new en row
-                sn2, _ = Get.legacyid(new_en_row[COLUMNS["legacy_term_id"]])
-                new_lang_row = self.__set_term_id(new_lang_row, sn2)
+                new_lang_row = self.__set_term_id(new_lang_row, old_en_row)
             new_lang_row = self.__set_date(new_lang_row)
             # inactivate the old lang row
             index = Get.index_by_codeid(
@@ -148,7 +128,7 @@ class NewConcept:
                 [self.__database, new_lang_row.to_frame().T], ignore_index=True)
 
     def commit(self):
-        for new_en_row, old_en_row in self.__new_concept_en_rows:
+        for new_en_row, old_en_row in self.__new_term_en_rows:
             new_en_row = self.__set_en_row(new_en_row, old_en_row)
             self.__set_lang_rows(new_en_row, old_en_row)
         return self.__database
