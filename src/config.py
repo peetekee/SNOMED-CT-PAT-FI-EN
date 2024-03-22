@@ -1,6 +1,7 @@
 import os
 from dotenv import load_dotenv
 from sqlalchemy import create_engine
+from numpy import nan
 
 COLUMNS = {
     "code_id": "CodeId",
@@ -45,7 +46,7 @@ COLUMNS = {
     "verenkierto_yleiset": "verenkierto_yleiset"
 }
 
-# EDIT_TYPES = ["new_concept", "new_term", "nationalize_concept", "nationalize_term"]
+EDIT_TYPES = ["new_concept", "new_term", "nationalize_concept", "nationalize_term"]
 # make this into an dictionary, for now the keys are the same as the values
 UPDATE_TYPES = {
     "new_concept": "new_concept",
@@ -94,6 +95,7 @@ class Config:
         self.__version_date = None
         self.__default_expiring_date = None
         self.__langs = ["fi", "sv"]
+        self.__empty_values = [None, "", nan]
         self.__initialize()
 
     @property
@@ -135,6 +137,10 @@ class Config:
     @property
     def langs(self):
         return self.__langs
+    
+    @property
+    def empty_values(self):
+        return self.__empty_values
 
     def __initialize(self):
         dirname = os.path.dirname(__file__)

@@ -1,12 +1,28 @@
 import re
 import pandas as pd
-from config import COLUMNS
+from collections import namedtuple
+from config import Config, COLUMNS, EDIT_TYPES
 
 
 class Get:
     @staticmethod
-    def edit_rows(table: 'pd.DataFrame'):
-        return table[table[COLUMNS["status"]] == "edit"].copy()
+    def edit_rows(table: 'pd.DataFrame', database: 'pd.DataFrame'):
+        dict_edit_rows = {}
+        RowPair = namedtuple('RowPair', ['old_row', 'new_row'])
+        for edit_type in EDIT_TYPES:
+            # create dictionary with edit_type as key and rows as value
+            # for every edit type we have two rows that have the same codeid
+            # the new one has a value in status column. The old one does not
+            # create NamedTuple with old and new row
+            edit_rows = table[table[COLUMNS["status"]] == edit_type].copy()
+            dict_edit_rows[edit_type] = []
+            if not edit_rows.empty:
+                for _, new_row in edit_rows.iterrows():
+                    # only one old row should exist
+                    old_row = database[database[COLUMNS["code_id"]] == int(new_row[COLUMNS["code_id"]])].iloc[0].copy()
+                    # Create a namedtuple with old and new row
+                    dict_edit_rows[edit_type].append(RowPair(old_row, new_row))
+        return dict_edit_rows
 
     @staticmethod
     def new_rows(table: 'pd.DataFrame'):
@@ -34,7 +50,7 @@ class Get:
 
     @staticmethod
     def lang_rows_by_en(table: 'pd.DataFrame', en_row: 'pd.DataFrame'):
-        return table[table[COLUMNS["en_row_code_id"]] == int(en_row[COLUMNS["en_row_code_id"]])].copy()
+        return table[(table[COLUMNS["en_row_code_id"]] == en_row[COLUMNS["en_row_code_id"]]) & (table[COLUMNS["lang"]] != "en")].copy()
 
     @staticmethod
     def old_row(table: 'pd.DataFrame'):
@@ -77,7 +93,6 @@ class Get:
         fin_id_series = table[column][table[column].str.fullmatch(
             r"^\d+1000288(10|11)\d$") == True]
         fin_id_max = 0
-
         if not fin_id_series.empty:
             fin_id_series = fin_id_series.apply(lambda x: x[:len(x)-10])
             fin_id_series = fin_id_series.astype(int)

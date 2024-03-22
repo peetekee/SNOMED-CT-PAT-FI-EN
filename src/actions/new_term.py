@@ -54,7 +54,7 @@ class NewTerm:
     def __set_administrative(self, new_en_row: 'pd.Series', old_en_row: 'pd.Series'):
         for column in self.COPY_COLUMNS:
             # if the new rows has no value, copy the value from the old row
-            if pd.isnull(new_en_row[column]):
+            if new_en_row[column] in self.__config.empty_values:
                 new_en_row[column] = old_en_row[column]
         return new_en_row
 

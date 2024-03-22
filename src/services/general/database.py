@@ -17,6 +17,7 @@ class Database:
                 query = db.text(f"SELECT * FROM {self.__schema}.{self.__table_name}")
 
                 df = pd.read_sql(query, connection)
+                df = df.astype(str)
                 df[COLUMNS["code_id"]] = df[COLUMNS["code_id"]].astype(int)
                 return df
         except Exception as e:
