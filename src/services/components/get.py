@@ -15,11 +15,18 @@ class Get:
             # the new one has a value in status column. The old one does not
             # create NamedTuple with old and new row
             edit_rows = table[table[COLUMNS["status"]] == edit_type].copy()
+
             dict_edit_rows[edit_type] = []
             if not edit_rows.empty:
                 for _, new_row in edit_rows.iterrows():
                     # only one old row should exist
                     old_row = database[database[COLUMNS["code_id"]] == int(new_row[COLUMNS["code_id"]])].iloc[0].copy()
+                    table_old_row = table[(table[COLUMNS["code_id"]] == new_row[COLUMNS["code_id"]]) & (table[COLUMNS["status"]].isna())].iloc[0].copy()
+                    old_row[COLUMNS["edit_comment"]] = table_old_row[COLUMNS["edit_comment"]]
+                    old_row[COLUMNS["inaktivoinnin_selite"]] = table_old_row[COLUMNS["inaktivoinnin_selite"]]
+                    # get comment and inaktivoinnin_selite from old row
+                    # from the table dataframe
+
                     # Create a namedtuple with old and new row
                     dict_edit_rows[edit_type].append(RowPair(old_row, new_row))
         return dict_edit_rows

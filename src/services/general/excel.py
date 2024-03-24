@@ -7,7 +7,9 @@ class Excel:
         self.__config = config
 
     def get(self):
-        return pd.read_excel(self.__config.excel_path, engine="openpyxl", dtype=str, sheet_name=self.__config.excel_sheet)
+        excel = pd.read_excel(self.__config.excel_path, engine="openpyxl", dtype=str, sheet_name=self.__config.excel_sheet)
+        excel[COLUMNS["code_id"]] = excel[COLUMNS["code_id"]].astype(int)
+        return excel
 
     def post(self, table: 'pd.DataFrame'):
         table[[COLUMNS["code_id"], COLUMNS["concept_id"], COLUMNS["term_id"], COLUMNS["en_row_code_id"]]] = table[[
