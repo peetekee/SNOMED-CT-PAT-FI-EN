@@ -1,14 +1,14 @@
 import pandas as pd
-from config import COLUMNS, Config
+from config import COLUMNS
 from services import Get, Put, Set, Verhoeff
 
 
 class NewTerm:
-    def __init__(self, database: 'pd.DataFrame', new_term_en_rows: 'list'):
+    def __init__(self, database: 'pd.DataFrame', new_term_en_rows: 'list', config: object):
         self.__database = database
         self.__new_term_en_rows = new_term_en_rows
         self.__verhoeff = Verhoeff()
-        self.__config = Config()
+        self.__config = config
 
     def __set_term_id(self, new_en_row: 'pd.Series', old_en_row: 'pd.Series'):
         term_sn2, term_sct = Get.legacyid(

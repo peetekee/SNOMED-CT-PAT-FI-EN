@@ -43,8 +43,8 @@ status sarakkeen arvon tulee olla "inactivate"
     - 
 
 
-[] new_concept
-[] new_term
+[x] new_concept
+[x] new_term
 [] nationalize_concept
 [] nationalize_term
 [x] fsn

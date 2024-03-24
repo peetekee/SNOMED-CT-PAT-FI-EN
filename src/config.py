@@ -81,7 +81,8 @@ class Config:
     """Class for configuration
 
     Includes basic configuration for the application
-    Includes database connection, schema, table, excel file, excel sheet, output file and output table
+    The services and actions classes use this class to get the configuration values.
+    It reads the configuration values from the .env file and initializes the class variables.
 
     Attributes:
         __database_connection (sqlalchemy.engine.base.Engine): Database connection
@@ -91,10 +92,10 @@ class Config:
         __excel_sheet (str): Excel sheet name
         __output_file (str): Output file path
         __output_table (str): Output table name
-
-    Class variables:
-        columns (dict): Keys are the column names used in the application and
-                        values are the column names in the database.
+        __version_date (str): Version date
+        __default_expiring_date (str): Default expiring date
+        __langs (list): List of languages
+        __empty_values (list): List of empty values
     """
 
 

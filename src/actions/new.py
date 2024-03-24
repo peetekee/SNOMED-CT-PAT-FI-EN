@@ -1,5 +1,5 @@
 import pandas as pd
-from config import COLUMNS, Config
+from config import COLUMNS
 from services.components import Get
 from services.general import Verhoeff
 
@@ -8,11 +8,11 @@ class New:
     """Legacy is is the master
     """
 
-    def __init__(self, database: 'pd.DataFrame', new_en_rows: 'pd.DataFrame'):
+    def __init__(self, database: 'pd.DataFrame', new_en_rows: 'pd.DataFrame', config: object):
         self.__database = database
         self.__new_en_rows = new_en_rows
         self.__verhoeff = Verhoeff()
-        self.__config = Config()
+        self.__config = config
 
     def __set_code_id(self, en_row: 'pd.Series'):
         en_row[COLUMNS["code_id"]] = Get.next_codeid(self.__database)
@@ -56,10 +56,6 @@ class New:
         return en_row
 
     def __create_lang_rows(self, en_row: 'pd.Series'):
-        # create lang row for each language
-        # each lang row get unique code_id
-        # en_row_code_id is the parent_id and is the same for all lang rows - it is the code_id of the en_row
-        # Everything else is the same as the en_row
         for lang in self.__config.langs:
             lang_row = en_row.copy()
             lang_row[COLUMNS["lang"]] = lang

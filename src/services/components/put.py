@@ -22,9 +22,8 @@ class Put:
         return table
     
     @staticmethod
-    def fsn(table: 'pd.DataFrame', index: int, new_fsn: str, edit_comment: str):
+    def fsn(table: 'pd.DataFrame', index: int, new_fsn: str):
         table.loc[index, COLUMNS["concept_fsn"]] = new_fsn
-        table.loc[index, COLUMNS["edit_comment"]] = edit_comment
         return table
     
     @staticmethod
@@ -33,9 +32,3 @@ class Put:
             table.loc[index, column] = en_row[column]
         return table
     
-    # @staticmethod
-    # def handle_old_row(table: 'pd.DataFrame', old_row: 'pd.Series', index: int, new_lineid: int):
-    #     table.loc[index, :] = old_row[:]
-    #     table.loc[index, 'in_use'] = 'N'
-    #     table.loc[index, 'superseded_by'] = new_lineid
-    #     return table
