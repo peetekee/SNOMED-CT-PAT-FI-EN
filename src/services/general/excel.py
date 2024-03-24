@@ -7,7 +7,8 @@ class Excel:
         self.__config = config
 
     def get(self):
-        excel = pd.read_excel(self.__config.excel_path, engine="openpyxl", dtype=str, sheet_name=self.__config.excel_sheet)
+        excel = pd.read_excel(self.__config.excel_path, engine="openpyxl",
+                              dtype=str, sheet_name=self.__config.excel_sheet)
         excel[COLUMNS["code_id"]] = excel[COLUMNS["code_id"]].astype(int)
         return excel
 

@@ -1,72 +1,25 @@
 import pandas as pd
 from config import COLUMNS, Config
-from services.components import Get, Put
-from services.general import Verhoeff
+from services import Get, Put, Set, Verhoeff
 
 
 class NewTerm:
-
-    COPY_COLUMNS = [
-        COLUMNS["tmdc"],
-        COLUMNS["lang"],
-        COLUMNS["tays_snomed_ii"],
-        COLUMNS["parent_concept_id"],
-        COLUMNS["parent_concept_fsn"],
-        COLUMNS["icdo_term"],
-        COLUMNS["icdo_synonyms"],
-        COLUMNS["sn2_code"],
-        COLUMNS["sn2_term"],
-        COLUMNS["endo"],
-        COLUMNS["gastro"],
-        COLUMNS["gyne"],
-        COLUMNS["iho"],
-        COLUMNS["hema"],
-        COLUMNS["keuhko"],
-        COLUMNS["nefro"],
-        COLUMNS["neuro"],
-        COLUMNS["paa_kaula"],
-        COLUMNS["pedi"],
-        COLUMNS["pehmyt"],
-        COLUMNS["rinta"],
-        COLUMNS["syto"],
-        COLUMNS["uro"],
-        COLUMNS["verenkierto_yleiset"]
-    ]
-
     def __init__(self, database: 'pd.DataFrame', new_term_en_rows: 'list'):
         self.__database = database
         self.__new_term_en_rows = new_term_en_rows
         self.__verhoeff = Verhoeff()
         self.__config = Config()
 
-    def __set_code_id(self, new_en_row: 'pd.Series'):
-        new_en_row[COLUMNS["code_id"]] = Get.next_codeid(self.__database)
-        new_en_row[COLUMNS["en_row_code_id"]] = new_en_row[COLUMNS["code_id"]]
-        return new_en_row
-
-    def __set_date(self, new_en_row: 'pd.Series'):
-        new_en_row[COLUMNS["active"]] = "Y"
-        new_en_row[COLUMNS["beginning_date"]] = self.__config.version_date
-        new_en_row[COLUMNS["expiring_date"]
-                   ] = self.__config.default_expiring_date
-        return new_en_row
-
-    def __set_administrative(self, new_en_row: 'pd.Series', old_en_row: 'pd.Series'):
-        for column in self.COPY_COLUMNS:
-            # if the new rows has no value, copy the value from the old row
-            if new_en_row[column] in self.__config.empty_values:
-                new_en_row[column] = old_en_row[column]
-        return new_en_row
-
     def __set_term_id(self, new_en_row: 'pd.Series', old_en_row: 'pd.Series'):
-        term_sn2, term_sct = Get.legacyid(new_en_row[COLUMNS["legacy_term_id"]])
+        term_sn2, term_sct = Get.legacyid(
+            new_en_row[COLUMNS["legacy_term_id"]])
         if term_sn2 == None:
             raise Exception(
                 "One of the new rows has missing or invalid legacy termid SN2 part")
         if term_sct == None:
             term_integer = Get.next_fin_extension_id(
                 self.__database, COLUMNS["legacy_term_id"])
-            term_sct = self.__verhoeff.generateVerhoeff(term_integer,"11")
+            term_sct = self.__verhoeff.generateVerhoeff(term_integer, "11")
 
         new_en_row[COLUMNS["legacy_term_id"]] = f"{term_sn2}-{term_sct}"
         new_en_row[COLUMNS["term_id"]] = term_sct
@@ -80,9 +33,9 @@ class NewTerm:
         return new_en_row
 
     def __set_en_row(self, new_en_row: 'pd.Series', old_en_row: 'pd.Series'):
-        new_en_row = self.__set_code_id(new_en_row)
-        new_en_row = self.__set_date(new_en_row)
-        new_en_row = self.__set_administrative(new_en_row, old_en_row)
+        new_en_row = Set.en_row_code_id(new_en_row, self.__database)
+        new_en_row = Set.date(new_en_row, self.__config)
+        new_en_row = Set.administrative(new_en_row, old_en_row, self.__config)
         new_en_row = self.__set_term_id(new_en_row, old_en_row)
         new_en_row = self.__set_fsn(new_en_row, old_en_row)
         # inactivate the old en row
@@ -93,7 +46,7 @@ class NewTerm:
         self.__database = pd.concat(
             [self.__database, new_en_row.to_frame().T], ignore_index=True)
         return new_en_row
-    
+
     def __set_lang_rows(self, new_en_row: 'pd.Series', old_en_row: 'pd.Series'):
         old_lang_rows = Get.lang_rows_by_en(self.__database, old_en_row)
         for _, old_lang_row in old_lang_rows.iterrows():
@@ -117,7 +70,7 @@ class NewTerm:
                 new_lang_row[COLUMNS["term"]] = new_en_row[COLUMNS["term"]]
             else:
                 new_lang_row = self.__set_term_id(new_lang_row, old_en_row)
-            new_lang_row = self.__set_date(new_lang_row)
+            new_lang_row = Set.date(new_lang_row, self.__config)
             # inactivate the old lang row
             index = Get.index_by_codeid(
                 self.__database, old_lang_row[COLUMNS["code_id"]])

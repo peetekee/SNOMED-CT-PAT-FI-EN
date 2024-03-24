@@ -47,19 +47,33 @@ COLUMNS = {
 }
 
 EDIT_TYPES = ["new_concept", "new_term", "nationalize_concept", "nationalize_term"]
-# make this into an dictionary, for now the keys are the same as the values
-UPDATE_TYPES = {
-    "new_concept": "new_concept",
-    "new_term": "new_term",
-    "nationalize_concept": "nationalize_concept",
-    "nationalize_term": "nationalize_term",
-    "fsn": "fsn",
-    "administrative": "administrative",
-    "new": "new",
-    "inactivate": "inactivate",
-    "activate": "activate",
-    "other": "other"
-}
+
+COPY_COLUMNS = [
+        COLUMNS["tmdc"],
+        COLUMNS["lang"],
+        COLUMNS["tays_snomed_ii"],
+        COLUMNS["parent_concept_id"],
+        COLUMNS["parent_concept_fsn"],
+        COLUMNS["icdo_term"],
+        COLUMNS["icdo_synonyms"],
+        COLUMNS["sn2_code"],
+        COLUMNS["sn2_term"],
+        COLUMNS["endo"],
+        COLUMNS["gastro"],
+        COLUMNS["gyne"],
+        COLUMNS["iho"],
+        COLUMNS["hema"],
+        COLUMNS["keuhko"],
+        COLUMNS["nefro"],
+        COLUMNS["neuro"],
+        COLUMNS["paa_kaula"],
+        COLUMNS["pedi"],
+        COLUMNS["pehmyt"],
+        COLUMNS["rinta"],
+        COLUMNS["syto"],
+        COLUMNS["uro"],
+        COLUMNS["verenkierto_yleiset"]
+    ]
 
 
 
