@@ -51,15 +51,11 @@ class Administrative:
             self.__database, en_row)
 
         for _, lang_row in lang_rows.iterrows():
-            index = Get.index_by_codeid(
-                self.__database, lang_row[COLUMNS["code_id"]])
             self.__database = Put.administrative_columns(
-                self.__database, index, en_row, self.ADMINISTRATIVE_COLUMNS)
+                lang_row[COLUMNS["code_id"]], self.__database, en_row, self.ADMINISTRATIVE_COLUMNS)
 
-        index = Get.index_by_codeid(
-            self.__database, en_row[COLUMNS["code_id"]])
         self.__database = Put.administrative_columns(
-            self.__database, index, en_row, self.ADMINISTRATIVE_COLUMNS)
+            en_row[COLUMNS["code_id"]], self.__database, en_row, self.ADMINISTRATIVE_COLUMNS)
 
     def commit(self):
         """Main function

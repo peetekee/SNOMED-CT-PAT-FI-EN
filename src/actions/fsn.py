@@ -28,15 +28,11 @@ class FSN:
         concept_rows = self.__database[self.__database[COLUMNS["concept_id"]]
                                        == en_row[COLUMNS["concept_id"]]]
         for _, concept_row in concept_rows.iterrows():
-            index = Get.index_by_codeid(
-                self.__database, concept_row[COLUMNS["code_id"]])
             self.__database = Put.fsn(
-                self.__database, index, en_row[COLUMNS["concept_fsn"]])
+                concept_row[COLUMNS["code_id"]], self.__database, en_row[COLUMNS["concept_fsn"]])
 
-        index = Get.index_by_codeid(
-            self.__database, en_row[COLUMNS["code_id"]])
         self.__database = Put.fsn(
-            self.__database, index, en_row[COLUMNS["concept_fsn"]])
+            en_row[COLUMNS["code_id"]], self.__database, en_row[COLUMNS["concept_fsn"]])
 
     def commit(self):
         """Main function for updating the FSN

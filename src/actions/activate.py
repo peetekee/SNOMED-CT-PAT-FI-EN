@@ -31,15 +31,11 @@ class Activate:
             self.__database, en_row)
 
         for _, lang_row in lang_rows.iterrows():
-            index = Get.index_by_codeid(
-                self.__database, lang_row[COLUMNS["code_id"]])
-            self.__database = Put.inactivated_row(
-                self.__database, index, self.__config.version_date, self.__config.default_expiring_date, en_row[COLUMNS["inaktivoinnin_selite"]], en_row[COLUMNS["edit_comment"]])
+            self.__database = Put.activate_row_row(
+                lang_row[COLUMNS["code_id"]], self.__database, self.__config.version_date, self.__config.default_expiring_date, en_row[COLUMNS["inaktivoinnin_selite"]], en_row[COLUMNS["edit_comment"]])
 
-        index = Get.index_by_codeid(
-            self.__database, en_row[COLUMNS["code_id"]])
-        self.__database = Put.inactivated_row(
-            self.__database, index, self.__config.version_date, self.__config.default_expiring_date, en_row[COLUMNS["edit_comment"]])
+        self.__database = Put.activate_row(
+            en_row[COLUMNS["code_id"]], self.__database, self.__config.version_date, self.__config.default_expiring_date, en_row[COLUMNS["edit_comment"]])
 
     def commit(self):
         """Main function for activating rows

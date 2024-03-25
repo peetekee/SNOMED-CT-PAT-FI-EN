@@ -1,6 +1,6 @@
 import pandas as pd
 from config import COLUMNS
-from services import Get, Put, Set, Verhoeff
+from services import Get, Put, Set, Post, Verhoeff
 
 
 class NewConcept:
@@ -13,13 +13,13 @@ class NewConcept:
     It inactivates the old concept and creates a new concept with the new values.
     """
 
-    def __init__(self, database: 'pd.DataFrame', new_concept_en_rows: 'list', config: object):
+    def __init__(self, database: 'pd.DataFrame', new_concept_en_rows: 'list', config: object) -> None:
         self.__database = database
         self.__new_concept_en_rows = new_concept_en_rows
         self.__verhoeff = Verhoeff()
         self.__config = config
 
-    def __set_concept_id(self, new_en_row: 'pd.Series'):
+    def __set_concept_id(self, new_en_row: 'pd.Series') -> tuple:
         """Sets the concept id and the legacy concept id for the new concept row
 
         If the new concept row has no concept id, it generates a national new concept id.
@@ -53,74 +53,59 @@ class NewConcept:
         new_en_row[COLUMNS["legacy_concept_id"]
                    ] = f"{concept_sn2}-{concept_sct}"
         new_en_row[COLUMNS["concept_id"]] = concept_sct
-        return new_en_row, concept_sn2
-
-    def __set_term_id(self, row: 'pd.Series', sn2: str):
-        """A change in concept id requires a change in term id as well
-
-        If the new concept row has no term id, it generates a national new term id.
-        On the other hand, if the new concept row has a term id, it takes that.
-
-        Args:
-            row (pd.Series): row that need a new term id
-            sn2 (str): the SN2 part of the legacy term id
-
-        Raises:
-            Exception: If the new concept row has missing or invalid legacy termid SN2 part
-
-        Returns:
-            pd.Series: The row with the new term id
-        """
-        
-        if sn2 in self.__config.empty_values:
-            raise Exception(
-                "One of the new_concept rows has missing or invalid legacy termid SN2 part")
-        term_integer = Get.next_fin_extension_id(
-            self.__database, COLUMNS["term_id"])
-        term_sct = self.__verhoeff.generateVerhoeff(term_integer, "11")
-
-        row[COLUMNS["legacy_term_id"]] = f"{sn2}-{term_sct}"
-        row[COLUMNS["term_id"]] = term_sct
-        return row
-
-    def __set_fsn_and_term(self, new_en_row: 'pd.Series', old_en_row: 'pd.Series'):
-        # if the new rows has no value, copy the value from the old row
-        if new_en_row[COLUMNS["concept_fsn"]] in self.__config.empty_values:
-            new_en_row[COLUMNS["concept_fsn"]
-                       ] = old_en_row[COLUMNS["concept_fsn"]]
-        if new_en_row[COLUMNS["term"]] in self.__config.empty_values:
-            new_en_row[COLUMNS["term"]] = old_en_row[COLUMNS["term"]]
         return new_en_row
 
-    def __set_en_row(self, new_en_row: 'pd.Series', old_en_row: 'pd.Series'):
+    def __set_en_row(self, new_en_row: 'pd.Series', old_en_row: 'pd.Series') -> 'pd.Series':
+        """Sets the en row for the new concept
+
+        Calls the necessary functions to set the en row for the new concept.
+        Inactivates the old en row and adds the new en row to the database.
+        Returns the new en row for handling the lang rows.
+
+        Args:
+            new_en_row (pd.Series): The new en row
+            old_en_row (pd.Series): The old en row from the database
+
+        Returns:
+            pd.Series: The new en row
+        """
+
         new_en_row = Set.en_row_code_id(new_en_row, self.__database)
         new_en_row = Set.date(new_en_row, self.__config)
         new_en_row = Set.administrative(new_en_row, old_en_row, self.__config)
-        new_en_row, sn2 = self.__set_concept_id(new_en_row)
-        new_en_row = self.__set_term_id(new_en_row, sn2)
-        new_en_row = self.__set_fsn_and_term(new_en_row, old_en_row)
+        new_en_row = self.__set_concept_id(new_en_row)
+        new_en_row = Set.term_id(new_en_row, old_en_row, self.__database,
+                                 self.__verhoeff, self.__config)
+        new_en_row = Set.fsn(new_en_row, old_en_row, self.__config)
+        new_en_row = Set.term(new_en_row, old_en_row, self.__config)
         # inactivate the old en row
-        index = Get.index_by_codeid(
-            self.__database, old_en_row[COLUMNS["code_id"]])
-        self.__database = Put.inactivated_row(self.__database, index, self.__config.version_date,
+        self.__database = Put.inactivate_row(old_en_row[COLUMNS["code_id"]], self.__database, index, self.__config.version_date,
                                               old_en_row[COLUMNS["inaktivoinnin_selite"]], old_en_row[COLUMNS["edit_comment"]], new_en_row[COLUMNS["code_id"]])
-        self.__database = pd.concat(
-            [self.__database, new_en_row.to_frame().T], ignore_index=True)
+        self.__database = Post.new_row_to_database_table(
+            new_en_row, self.__database)
         return new_en_row
 
-    def __set_lang_rows(self, new_en_row: 'pd.Series', old_en_row: 'pd.Series'):
+    def __set_lang_rows(self, new_en_row: 'pd.Series', old_en_row: 'pd.Series') -> None:
+        """Sets the lang rows for the new concept
+
+        Gets the en row, creates a new lang row and inactivates the old lang row.
+        Adds the new lang row to the database.
+
+        Checks if the old lang row term id is the same as the old en row term id.
+        If it is, sets the new lang row term and term ids to the new en row term ids.
+        If it isn't, gets the SN2 from the new en row and sets the new lang row term id.
+
+        Args:
+            new_en_row (pd.Series): The new en row
+            old_en_row (pd.Series): The old en row from the database
+        """
+
         old_lang_rows = Get.lang_rows_by_en(self.__database, old_en_row)
         for _, old_lang_row in old_lang_rows.iterrows():
             new_lang_row = old_lang_row.copy()
             new_lang_row[COLUMNS["code_id"]] = Get.next_codeid(self.__database)
-            new_lang_row[COLUMNS["en_row_code_id"]
-                         ] = new_en_row[COLUMNS["code_id"]]
-            new_lang_row[COLUMNS["legacy_concept_id"]
-                         ] = new_en_row[COLUMNS["legacy_concept_id"]]
-            new_lang_row[COLUMNS["concept_id"]
-                         ] = new_en_row[COLUMNS["concept_id"]]
-            new_lang_row[COLUMNS["concept_fsn"]
-                         ] = new_en_row[COLUMNS["concept_fsn"]]
+            new_lang_row = Set.lang_row_concept_columns(
+                new_lang_row, new_en_row)
             # check if the old lang row term id is the same as the old en row term id
             # if it is, set the new lang row term and term ids to the new en row term ids
             if old_lang_row[COLUMNS["legacy_term_id"]] == old_en_row[COLUMNS["legacy_term_id"]]:
@@ -130,20 +115,25 @@ class NewConcept:
                              ] = new_en_row[COLUMNS["term_id"]]
                 new_lang_row[COLUMNS["term"]] = new_en_row[COLUMNS["term"]]
             else:
-                # get sn2 from the new en row
-                sn2, _ = Get.legacyid(new_en_row[COLUMNS["legacy_term_id"]])
-                new_lang_row = self.__set_term_id(new_lang_row, sn2)
+                new_lang_row = Set.term_id(
+                    new_lang_row, old_lang_row, self.__database, self.__verhoeff, self.__config)
             new_lang_row = Set.date(new_lang_row, self.__config)
             # inactivate the old lang row
-            index = Get.index_by_codeid(
-                self.__database, old_lang_row[COLUMNS["code_id"]])
-            self.__database = Put.inactivated_row(self.__database, index, self.__config.version_date,
+            self.__database = Put.inactivated_row(old_lang_row[COLUMNS["code_id"]], self.__database, self.__config.version_date,
                                                   old_en_row[COLUMNS["inaktivoinnin_selite"]], old_en_row[COLUMNS["edit_comment"]], new_lang_row[COLUMNS["code_id"]])
             # add the new lang row to the database
-            self.__database = pd.concat(
-                [self.__database, new_lang_row.to_frame().T], ignore_index=True)
+            self.__database = Post.new_row_to_database_table(
+                new_lang_row, self.__database)
 
-    def commit(self):
+    def commit(self) -> 'pd.DataFrame':
+        """Main function for editing concepts
+
+        Calls the necessary functions to edit the concepts in the database.
+
+        Returns:
+            pd.DataFrame: The edited database
+        """
+
         for old_en_row, new_en_row in self.__new_concept_en_rows:
             new_en_row = self.__set_en_row(new_en_row, old_en_row)
             self.__set_lang_rows(new_en_row, old_en_row)

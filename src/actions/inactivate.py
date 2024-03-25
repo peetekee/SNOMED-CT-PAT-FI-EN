@@ -23,21 +23,17 @@ class Inactivate:
 
         for _, lang_row in lang_rows.iterrows():
             # Inactivate lang_row
-            index = Get.index_by_codeid(
-                self.__database, lang_row[COLUMNS["code_id"]])
             self.__database = Put.inactivated_row(
-                self.__database, index, self.__config.version_date, en_row[COLUMNS["inaktivoinnin_selite"]], en_row[COLUMNS["edit_comment"]])
+                lang_row[COLUMNS["code_id"]], self.__database, self.__config.version_date, en_row[COLUMNS["inaktivoinnin_selite"]], en_row[COLUMNS["edit_comment"]])
 
         # Inactivate en_row
-        index = Get.index_by_codeid(
-            self.__database, en_row[COLUMNS["code_id"]])
-        self.__database = Put.inactivated_row(
-            self.__database, index, self.__config.version_date, en_row[COLUMNS["inaktivoinnin_selite"]], en_row[COLUMNS["edit_comment"]])
+        self.__database = Put.inactivate_row(
+            en_row[COLUMNS["code_id"]], self.__database, self.__config.version_date, en_row[COLUMNS["inaktivoinnin_selite"]], en_row[COLUMNS["edit_comment"]])
 
     def commit(self):
         """Main function for inactivating rows
         """
-        
+
         for _, en_row in self.__inactivated_en_rows.iterrows():
             self.__database = self.__inactivate_rows(
                 en_row)
