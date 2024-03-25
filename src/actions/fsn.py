@@ -1,6 +1,6 @@
 import pandas as pd
 from config import COLUMNS
-from services.components import Get, Put
+from services.components import Put
 
 
 class FSN:

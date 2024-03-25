@@ -79,7 +79,7 @@ class NewConcept:
         new_en_row = Set.fsn(new_en_row, old_en_row, self.__config)
         new_en_row = Set.term(new_en_row, old_en_row, self.__config)
         # inactivate the old en row
-        self.__database = Put.inactivate_row(old_en_row[COLUMNS["code_id"]], self.__database, index, self.__config.version_date,
+        self.__database = Put.inactivate_row(old_en_row[COLUMNS["code_id"]], self.__database, self.__config.version_date,
                                               old_en_row[COLUMNS["inaktivoinnin_selite"]], old_en_row[COLUMNS["edit_comment"]], new_en_row[COLUMNS["code_id"]])
         self.__database = Post.new_row_to_database_table(
             new_en_row, self.__database)
@@ -119,7 +119,7 @@ class NewConcept:
                     new_lang_row, old_lang_row, self.__database, self.__verhoeff, self.__config)
             new_lang_row = Set.date(new_lang_row, self.__config)
             # inactivate the old lang row
-            self.__database = Put.inactivated_row(old_lang_row[COLUMNS["code_id"]], self.__database, self.__config.version_date,
+            self.__database = Put.inactivate_row(old_lang_row[COLUMNS["code_id"]], self.__database, self.__config.version_date,
                                                   old_en_row[COLUMNS["inaktivoinnin_selite"]], old_en_row[COLUMNS["edit_comment"]], new_lang_row[COLUMNS["code_id"]])
             # add the new lang row to the database
             self.__database = Post.new_row_to_database_table(

@@ -107,6 +107,19 @@ class Get:
         """
 
         return table[table[COLUMNS["status"]] == "inactivate"].copy()
+    
+    @staticmethod
+    def administrative_rows(table: 'pd.DataFrame') -> 'pd.DataFrame':
+        """Get administrative rows from the excel table.
+
+        Args:
+            table (pd.DataFrame): Excel table
+
+        Returns:
+            pd.DataFrame: All of the administrative rows
+        """
+
+        return table[table[COLUMNS["status"]] == "administrative"].copy()
 
     @staticmethod
     def en_row(table: 'pd.DataFrame') -> 'pd.DataFrame':

@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 from services import Get, Database, Excel, Verhoeff
-from actions import Inactivate, New, FSN, NewConcept
+from actions import Inactivate, New, FSN, NewConcept, NewTerm, Administrative
 from config import Config
 
 
@@ -40,6 +40,7 @@ class Main:
         edit_rows = Get.edit_rows(excel, database)
         new_rows = Get.new_rows(excel)
         fsn_rows = Get.fsn_rows(excel)
+        
         inactivated_rows = Get.inactivated_rows(excel)
         activated_rows = Get.activated_rows(excel)
         return edit_rows, new_rows, fsn_rows, inactivated_rows, activated_rows
@@ -51,10 +52,12 @@ class Main:
         edit_rows, new_rows, fsn_rows, inactivated_rows, activated_rows = self.__get_update_types(
             excel, database)
 
-        # table = Inactivate(database, inactivated_rows).commit()
-        # table = FSN(database, fsn_rows).commit()
-        # table = New(database, new_rows).commit()
-        table = NewConcept(database, edit_rows["new_concept"], self.__config).commit()
+        table = Inactivate(database, inactivated_rows, self.__config).commit()
+        table = FSN(table, fsn_rows).commit()
+        table = Administrative(table, activated_rows).commit()
+        table = New(table, new_rows, self.__config).commit()
+        table = NewConcept(table, edit_rows["new_concept"], self.__config).commit()
+        table = NewTerm(table, edit_rows["new_term"], self.__config).commit()
         self.__excel.post(table)
         # print(self.__excel.post(table))
         # table = self.__handle_updated_rows(edit_rows, database)

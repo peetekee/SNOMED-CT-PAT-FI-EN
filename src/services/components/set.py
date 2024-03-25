@@ -56,11 +56,11 @@ class Set:
                 "One of the edit rows has missing or invalid legacy termid SN2 part")
         if new_term_sct in config.empty_values:
             new_term_int = Get.next_fin_extension_id(
-                database, COLUMNS["legacy_term_id"])
+                database, COLUMNS["term_id"])
             new_term_sct = verhoeff.generateVerhoeff(new_term_int, "11")
         elif new_term_sct == old_term_sct and new_row[COLUMNS["term"]] != old_row[COLUMNS["term"]]:
             new_term_int = Get.next_fin_extension_id(
-                database, COLUMNS["legacy_term_id"])
+                database, COLUMNS["term_id"])
             new_term_sct = verhoeff.generateVerhoeff(new_term_int, "11")
         new_row[COLUMNS["legacy_term_id"]] = f"{new_term_sn2}-{new_term_sct}"
         new_row[COLUMNS["term_id"]] = new_term_sct
