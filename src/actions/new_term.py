@@ -38,7 +38,7 @@ class NewTerm:
         Returns:
             pd.Series: The new en row
         """
-
+        print(new_en_row)
         new_en_row = Set.en_row_code_id(new_en_row, self.__database)
         new_en_row = Set.date(new_en_row, self.__config)
         new_en_row = Set.administrative(new_en_row, old_en_row, self.__config)
@@ -46,7 +46,7 @@ class NewTerm:
                                  self.__database, self.__verhoeff, self.__config)
         new_en_row = Set.fsn(new_en_row, old_en_row, self.__config)
         # inactivate the old en row
-        self.__database = Put.inactivated_row(old_en_row[COLUMNS["code_id"]], self.__database, self.__config.version_date,
+        self.__database = Put.inactivate_row(old_en_row[COLUMNS["code_id"]], self.__database, self.__config.version_date,
                                               old_en_row[COLUMNS["inaktivoinnin_selite"]], old_en_row[COLUMNS["edit_comment"]], new_en_row[COLUMNS["code_id"]])
         self.__database = Post.new_row_to_database_table(
             new_en_row, self.__database)
@@ -79,22 +79,19 @@ class NewTerm:
                 new_lang_row[COLUMNS["term_id"]
                              ] = new_en_row[COLUMNS["term_id"]]
                 new_lang_row[COLUMNS["term"]] = new_en_row[COLUMNS["term"]]
-            else:
-                new_lang_row = Set.term_id(
-                    new_lang_row, old_lang_row, self.__database, self.__verhoeff, self.__config)
-            new_lang_row = Set.date(new_lang_row, self.__config)
-            # inactivate the old lang row
-            self.__database = Put.inactivated_row(old_lang_row[COLUMNS["code_id"]], self.__database, self.__config.version_date,
-                                                  old_en_row[COLUMNS["inaktivoinnin_selite"]], old_en_row[COLUMNS["edit_comment"]], new_lang_row[COLUMNS["code_id"]])
-            # add the new lang row to the database
-            self.__database = Post.new_row_to_database_table(
-                new_lang_row, self.__database)
+                new_lang_row = Set.date(new_lang_row, self.__config)
+                # inactivate the old lang row
+                self.__database = Put.inactivate_row(old_lang_row[COLUMNS["code_id"]], self.__database, self.__config.version_date,
+                                                      old_en_row[COLUMNS["inaktivoinnin_selite"]], old_en_row[COLUMNS["edit_comment"]], new_lang_row[COLUMNS["code_id"]])
+                # add the new lang row to the database
+                self.__database = Post.new_row_to_database_table(
+                    new_lang_row, self.__database)
 
     def commit(self) -> 'pd.DataFrame':
         """Main function
         """
         
-        for new_en_row, old_en_row in self.__new_term_en_rows:
+        for old_en_row, new_en_row in self.__new_term_en_rows:
             new_en_row = self.__set_en_row(new_en_row, old_en_row)
             self.__set_lang_rows(new_en_row, old_en_row)
         return self.__database

@@ -25,8 +25,9 @@ class FSN:
             en_row (pd.Series): The target concepts to be updated
         """
 
+        concept_id = self.__database[self.__database[COLUMNS["code_id"]] == en_row[COLUMNS["code_id"]]][COLUMNS["concept_id"]].values[0]
         concept_rows = self.__database[self.__database[COLUMNS["concept_id"]]
-                                       == en_row[COLUMNS["concept_id"]]]
+                                       == concept_id]
         for _, concept_row in concept_rows.iterrows():
             self.__database = Put.fsn(
                 concept_row[COLUMNS["code_id"]], self.__database, en_row[COLUMNS["concept_fsn"]])

@@ -23,7 +23,7 @@ class Inactivate:
 
         for _, lang_row in lang_rows.iterrows():
             # Inactivate lang_row
-            self.__database = Put.inactivated_row(
+            self.__database = Put.inactivate_row(
                 lang_row[COLUMNS["code_id"]], self.__database, self.__config.version_date, en_row[COLUMNS["inaktivoinnin_selite"]], en_row[COLUMNS["edit_comment"]])
 
         # Inactivate en_row
@@ -35,6 +35,5 @@ class Inactivate:
         """
 
         for _, en_row in self.__inactivated_en_rows.iterrows():
-            self.__database = self.__inactivate_rows(
-                en_row)
+            self.__inactivate_rows(en_row)
         return self.__database

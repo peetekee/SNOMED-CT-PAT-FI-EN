@@ -116,7 +116,7 @@ class NewConcept:
                 new_lang_row[COLUMNS["term"]] = new_en_row[COLUMNS["term"]]
             else:
                 new_lang_row = Set.term_id(
-                    new_lang_row, old_lang_row, self.__database, self.__verhoeff, self.__config)
+                    new_lang_row, old_lang_row, self.__database, self.__verhoeff, self.__config, True)
             new_lang_row = Set.date(new_lang_row, self.__config)
             # inactivate the old lang row
             self.__database = Put.inactivate_row(old_lang_row[COLUMNS["code_id"]], self.__database, self.__config.version_date,

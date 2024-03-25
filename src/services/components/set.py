@@ -26,7 +26,7 @@ class Set:
         return en_row
 
     @staticmethod
-    def term_id(new_row: 'pd.Series', old_row: 'pd.Series', database: 'pd.DataFrame', verhoeff, config: object) -> 'pd.Series':
+    def term_id(new_row: 'pd.Series', old_row: 'pd.Series', database: 'pd.DataFrame', verhoeff: object, config: object, concept_change = False) -> 'pd.Series':
         """Sets the term id of the new row
 
         If the term id is missing or invalid, it generates a new term id.
@@ -54,11 +54,7 @@ class Set:
         if new_term_sn2 in config.empty_values:
             raise Exception(
                 "One of the edit rows has missing or invalid legacy termid SN2 part")
-        if new_term_sct in config.empty_values:
-            new_term_int = Get.next_fin_extension_id(
-                database, COLUMNS["term_id"])
-            new_term_sct = verhoeff.generateVerhoeff(new_term_int, "11")
-        elif new_term_sct == old_term_sct and new_row[COLUMNS["term"]] != old_row[COLUMNS["term"]]:
+        if new_term_sct in config.empty_values or concept_change:
             new_term_int = Get.next_fin_extension_id(
                 database, COLUMNS["term_id"])
             new_term_sct = verhoeff.generateVerhoeff(new_term_int, "11")
