@@ -1,9 +1,9 @@
 from main import Main
 
 
-def main():
+def index():
     Main().run()
 
 
 if __name__ == "__main__":
-    main()
+    index()

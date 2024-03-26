@@ -45,23 +45,37 @@ class Main:
         activated_rows = Get.activated_rows(excel)
         return edit_rows, new_rows, fsn_rows, administrative, inactivated_rows, activated_rows
 
-    def run(self):
+    def run(self, progress_callback=None):
         """The main driver function for the application
         """
         excel, database = self.__get_tables()
+        if progress_callback:
+            progress_callback(5)
         edit_rows, new_rows, fsn_rows, administrative, inactivated_rows, activated_rows = self.__get_update_types(
             excel, database)
+        if progress_callback:
+            progress_callback(10)
 
         table = Inactivate(database, inactivated_rows, self.__config).commit()
+        if progress_callback:
+            progress_callback(20)
         table = FSN(table, fsn_rows).commit()
+        if progress_callback:
+            progress_callback(30)
         table = Administrative(table, administrative).commit()
+        if progress_callback:
+            progress_callback(40)
         table = New(table, new_rows, self.__config).commit()
+        if progress_callback:
+            progress_callback(50)
         table = NewConcept(table, edit_rows["new_concept"], self.__config).commit()
+        if progress_callback:
+            progress_callback(60)
         table = NewTerm(table, edit_rows["new_term"], self.__config).commit()
+        if progress_callback:
+            progress_callback(70)
         self.__excel.post(table)
-        # print(self.__excel.post(table))
-        # table = self.__handle_updated_rows(edit_rows, database)
-        # table = self.__handle_inactivated_rows(inactivated_rows, table)
-        # table = self.__handle_new_rows(new_rows, table)
+        if progress_callback:
+            progress_callback(100)
         # table = self.__component.empty_status_column(table)
         # self.__component.to_excel(table)
