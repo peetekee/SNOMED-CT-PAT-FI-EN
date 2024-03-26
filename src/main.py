@@ -40,21 +40,21 @@ class Main:
         edit_rows = Get.edit_rows(excel, database)
         new_rows = Get.new_rows(excel)
         fsn_rows = Get.fsn_rows(excel)
-        
+        administrative = Get.administrative_rows(excel)
         inactivated_rows = Get.inactivated_rows(excel)
         activated_rows = Get.activated_rows(excel)
-        return edit_rows, new_rows, fsn_rows, inactivated_rows, activated_rows
+        return edit_rows, new_rows, fsn_rows, administrative, inactivated_rows, activated_rows
 
     def run(self):
         """The main driver function for the application
         """
         excel, database = self.__get_tables()
-        edit_rows, new_rows, fsn_rows, inactivated_rows, activated_rows = self.__get_update_types(
+        edit_rows, new_rows, fsn_rows, administrative, inactivated_rows, activated_rows = self.__get_update_types(
             excel, database)
 
         table = Inactivate(database, inactivated_rows, self.__config).commit()
         table = FSN(table, fsn_rows).commit()
-        table = Administrative(table, activated_rows).commit()
+        table = Administrative(table, administrative).commit()
         table = New(table, new_rows, self.__config).commit()
         table = NewConcept(table, edit_rows["new_concept"], self.__config).commit()
         table = NewTerm(table, edit_rows["new_term"], self.__config).commit()

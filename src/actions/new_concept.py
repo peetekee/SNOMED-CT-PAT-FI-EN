@@ -1,6 +1,7 @@
 import pandas as pd
 from config import COLUMNS
 from services import Get, Put, Set, Post, Verhoeff
+from .fsn import FSN
 
 
 class NewConcept:
@@ -78,6 +79,7 @@ class NewConcept:
                                  self.__verhoeff, self.__config)
         new_en_row = Set.fsn(new_en_row, old_en_row, self.__config)
         new_en_row = Set.term(new_en_row, old_en_row, self.__config)
+        self.__database = FSN(self.__database, new_en_row.to_frame().transpose(), True).commit()
         # inactivate the old en row
         self.__database = Put.inactivate_row(old_en_row[COLUMNS["code_id"]], self.__database, self.__config.version_date,
                                               old_en_row[COLUMNS["inaktivoinnin_selite"]], old_en_row[COLUMNS["edit_comment"]], new_en_row[COLUMNS["code_id"]])

@@ -47,7 +47,7 @@ class New:
                 "One of the new rows has missing or invalid legacy conceptid SN2 part")
         if concept_sct == None:
             concept_integer = Get.next_fin_extension_id(
-                self.__database, COLUMNS["legacy_concept_id"])
+                self.__database, COLUMNS["concept_id"])
             concept_sct = self.__verhoeff.generateVerhoeff(
                 concept_integer, "10")
 
@@ -76,7 +76,7 @@ class New:
                 "One of the new rows has missing or invalid legacy termid SN2 part")
         if term_sct == None:
             term_integer = Get.next_fin_extension_id(
-                self.__database, COLUMNS["legacy_term_id"])
+                self.__database, COLUMNS["term_id"])
             term_sct = self.__verhoeff.generateVerhoeff(term_integer, "11")
 
         en_row[COLUMNS["legacy_term_id"]] = f"{term_sn2}-{term_sct}"
@@ -97,8 +97,8 @@ class New:
             pd.Series: Returns the new en row for the lang rows.
         """
 
-        en_row = Set.code_id(en_row)
-        en_row = Set.date(en_row)
+        en_row = Set.en_row_code_id(en_row, self.__database)
+        en_row = Set.date(en_row, self.__config)
         en_row = self.__generate_concept_id(en_row)
         en_row = self.__generate_term_id(en_row)
         self.__database = Post.new_row_to_database_table(

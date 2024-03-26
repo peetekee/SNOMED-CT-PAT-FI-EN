@@ -1,4 +1,5 @@
 import pandas as pd
+from numpy import nan
 from config import COLUMNS
 
 
@@ -22,7 +23,6 @@ class Excel:
 
         excel = pd.read_excel(self.__config.excel_path, engine="openpyxl",
                               dtype=str, sheet_name=self.__config.excel_sheet)
-        excel[COLUMNS["code_id"]] = excel[COLUMNS["code_id"]].astype(int)
         return excel
 
     def post(self, table: 'pd.DataFrame') -> None:
@@ -38,4 +38,5 @@ class Excel:
             COLUMNS["code_id"], COLUMNS["concept_id"], COLUMNS["term_id"], COLUMNS["en_row_code_id"]]].astype(str)
         table = table.sort_values(
             by=[COLUMNS["legacy_concept_id"], COLUMNS["en_row_code_id"], COLUMNS["lang"]])
+        table.replace('None', nan, inplace=True)
         table.to_excel(self.__config.output_file, index=False)

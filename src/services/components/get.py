@@ -1,7 +1,7 @@
 import re
 import pandas as pd
 from collections import namedtuple
-from config import Config, COLUMNS, EDIT_TYPES
+from config import COLUMNS, EDIT_TYPES
 
 
 class Get:
@@ -47,12 +47,15 @@ class Get:
                     # only one old row should exist
                     old_row = database[database[COLUMNS["code_id"]] == int(
                         new_row[COLUMNS["code_id"]])].iloc[0].copy()
-                    table_old_row = table[(table[COLUMNS["code_id"]] == new_row[COLUMNS["code_id"]]) & (
+                    excel_old_row = table[(table[COLUMNS["code_id"]] == new_row[COLUMNS["code_id"]]) & (
                         table[COLUMNS["status"]].isna())].iloc[0].copy()
                     old_row[COLUMNS["edit_comment"]
-                            ] = table_old_row[COLUMNS["edit_comment"]]
+                            ] = excel_old_row[COLUMNS["edit_comment"]]
                     old_row[COLUMNS["inaktivoinnin_selite"]
-                            ] = table_old_row[COLUMNS["inaktivoinnin_selite"]]
+                            ] = excel_old_row[COLUMNS["inaktivoinnin_selite"]]
+                    # set the code_id to int
+                    new_row[COLUMNS["code_id"]] = int(new_row[COLUMNS["code_id"]])
+                    old_row[COLUMNS["code_id"]] = int(old_row[COLUMNS["code_id"]])
                     # Create a namedtuple with old and new row
                     dict_edit_rows[edit_type].append(RowPair(old_row, new_row))
         return dict_edit_rows
@@ -81,7 +84,9 @@ class Get:
             pd.DataFrame: All of the fsn update rows
         """
 
-        return table[table[COLUMNS["status"]] == "fsn"].copy()
+        fsn_rows = table[table[COLUMNS["status"]] == "fsn"].copy()
+        fsn_rows[COLUMNS["code_id"]] = fsn_rows[COLUMNS["code_id"]].astype(int)
+        return fsn_rows
 
     @staticmethod
     def activated_rows(table: 'pd.DataFrame') -> 'pd.DataFrame':
@@ -93,7 +98,9 @@ class Get:
         Returns:
             pd.DataFrame: All of the activated rows
         """
-        return table[table[COLUMNS["status"]] == "activated"].copy()
+        activated_rows = table[table[COLUMNS["status"]] == "activated"].copy()
+        activated_rows[COLUMNS["code_id"]] = activated_rows[COLUMNS["code_id"]].astype(int)
+        return activated_rows
 
     @staticmethod
     def inactivated_rows(table: 'pd.DataFrame') -> 'pd.DataFrame':
@@ -106,7 +113,9 @@ class Get:
             pd.DataFrame: All of the inactivated rows
         """
 
-        return table[table[COLUMNS["status"]] == "inactivate"].copy()
+        inactivated_rows = table[table[COLUMNS["status"]] == "inactivate"].copy()
+        inactivated_rows[COLUMNS["code_id"]] = inactivated_rows[COLUMNS["code_id"]].astype(int)
+        return inactivated_rows
     
     @staticmethod
     def administrative_rows(table: 'pd.DataFrame') -> 'pd.DataFrame':
@@ -119,7 +128,9 @@ class Get:
             pd.DataFrame: All of the administrative rows
         """
 
-        return table[table[COLUMNS["status"]] == "administrative"].copy()
+        administrative_rows = table[table[COLUMNS["status"]] == "administrative"].copy()
+        administrative_rows[COLUMNS["code_id"]] = administrative_rows[COLUMNS["code_id"]].astype(int)
+        return administrative_rows
 
     @staticmethod
     def en_row(table: 'pd.DataFrame') -> 'pd.DataFrame':

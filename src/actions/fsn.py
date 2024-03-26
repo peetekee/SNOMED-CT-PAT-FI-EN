@@ -11,9 +11,10 @@ class FSN:
     It updates the FSN of all the rows with same concept_id.
     """
 
-    def __init__(self, database: 'pd.DataFrame', fsn_edit_en_rows: 'pd.DataFrame'):
+    def __init__(self, database: 'pd.DataFrame', fsn_edit_en_rows: 'pd.DataFrame', new: bool = False):
         self.__database = database
         self.__fsn_edit_en_rows = fsn_edit_en_rows
+        self.__new = new
 
     def __update_fsn(self, en_row: 'pd.Series'):
         """Updates the FSN in the database
@@ -24,16 +25,18 @@ class FSN:
         Args:
             en_row (pd.Series): The target concepts to be updated
         """
-
-        concept_id = self.__database[self.__database[COLUMNS["code_id"]] == en_row[COLUMNS["code_id"]]][COLUMNS["concept_id"]].values[0]
+        if self.__new:
+            concept_id = en_row[COLUMNS["concept_id"]]
+        else:
+            concept_id = self.__database[self.__database[COLUMNS["code_id"]] == en_row[COLUMNS["code_id"]]][COLUMNS["concept_id"]].values[0]
         concept_rows = self.__database[self.__database[COLUMNS["concept_id"]]
                                        == concept_id]
         for _, concept_row in concept_rows.iterrows():
             self.__database = Put.fsn(
                 concept_row[COLUMNS["code_id"]], self.__database, en_row[COLUMNS["concept_fsn"]])
-
-        self.__database = Put.fsn(
-            en_row[COLUMNS["code_id"]], self.__database, en_row[COLUMNS["concept_fsn"]])
+        if not self.__new:
+            self.__database = Put.fsn(
+                en_row[COLUMNS["code_id"]], self.__database, en_row[COLUMNS["concept_fsn"]])
 
     def commit(self):
         """Main function for updating the FSN
