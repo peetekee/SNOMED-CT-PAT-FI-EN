@@ -108,6 +108,7 @@ class NewConcept:
             new_lang_row[COLUMNS["code_id"]] = Get.next_codeid(self.__database)
             new_lang_row = Set.lang_row_concept_columns(
                 new_lang_row, new_en_row)
+            new_lang_row[COLUMNS["edit_comment"]] = new_en_row[COLUMNS["edit_comment"]]
             # check if the old lang row term id is the same as the old en row term id
             # if it is, set the new lang row term and term ids to the new en row term ids
             if old_lang_row[COLUMNS["legacy_term_id"]] == old_en_row[COLUMNS["legacy_term_id"]]:
