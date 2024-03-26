@@ -46,35 +46,61 @@ COLUMNS = {
     "verenkierto_yleiset": "verenkierto_yleiset"
 }
 
-EDIT_TYPES = ["new_concept", "new_term", "nationalize_concept", "nationalize_term"]
+EDIT_TYPES = ["new_concept", "new_term",
+              "nationalize_concept", "nationalize_term"]
 
 COPY_COLUMNS = [
-        COLUMNS["tmdc"],
-        COLUMNS["lang"],
-        COLUMNS["tays_snomed_ii"],
-        COLUMNS["parent_concept_id"],
-        COLUMNS["parent_concept_fsn"],
-        COLUMNS["icdo_term"],
-        COLUMNS["icdo_synonyms"],
-        COLUMNS["sn2_code"],
-        COLUMNS["sn2_term"],
-        COLUMNS["endo"],
-        COLUMNS["gastro"],
-        COLUMNS["gyne"],
-        COLUMNS["iho"],
-        COLUMNS["hema"],
-        COLUMNS["keuhko"],
-        COLUMNS["nefro"],
-        COLUMNS["neuro"],
-        COLUMNS["paa_kaula"],
-        COLUMNS["pedi"],
-        COLUMNS["pehmyt"],
-        COLUMNS["rinta"],
-        COLUMNS["syto"],
-        COLUMNS["uro"],
-        COLUMNS["verenkierto_yleiset"]
-    ]
+    COLUMNS["tmdc"],
+    COLUMNS["lang"],
+    COLUMNS["tays_snomed_ii"],
+    COLUMNS["parent_concept_id"],
+    COLUMNS["parent_concept_fsn"],
+    COLUMNS["icdo_term"],
+    COLUMNS["icdo_synonyms"],
+    COLUMNS["sn2_code"],
+    COLUMNS["sn2_term"],
+    COLUMNS["endo"],
+    COLUMNS["gastro"],
+    COLUMNS["gyne"],
+    COLUMNS["iho"],
+    COLUMNS["hema"],
+    COLUMNS["keuhko"],
+    COLUMNS["nefro"],
+    COLUMNS["neuro"],
+    COLUMNS["paa_kaula"],
+    COLUMNS["pedi"],
+    COLUMNS["pehmyt"],
+    COLUMNS["rinta"],
+    COLUMNS["syto"],
+    COLUMNS["uro"],
+    COLUMNS["verenkierto_yleiset"]
+]
 
+ADMINISTRATIVE_COLUMNS = [
+    COLUMNS["tays_snomed_ii"],
+    COLUMNS["parent_concept_id"],
+    COLUMNS["parent_concept_fsn"],
+    COLUMNS["edit_comment"],
+    COLUMNS["icdo_term"],
+    COLUMNS["icdo_synonyms"],
+    COLUMNS["sn2_code"],
+    COLUMNS["sn2_term"],
+    COLUMNS["endo"],
+    COLUMNS["gastro"],
+    COLUMNS["gyne"],
+    COLUMNS["iho"],
+    COLUMNS["hema"],
+    COLUMNS["keuhko"],
+    COLUMNS["nefro"],
+    COLUMNS["neuro"],
+    COLUMNS["paa_kaula"],
+    COLUMNS["pedi"],
+    COLUMNS["pehmyt"],
+    COLUMNS["rinta"],
+    COLUMNS["syto"],
+    COLUMNS["uro"],
+    COLUMNS["verenkierto_yleiset"],
+]
 
 
 class Config:
@@ -97,7 +123,6 @@ class Config:
         __langs (list): List of languages
         __empty_values (list): List of empty values
     """
-
 
     def __init__(self):
         self.__database_connection = None
@@ -140,19 +165,19 @@ class Config:
     @property
     def output_table(self):
         return self.__output_table
-    
+
     @property
     def version_date(self):
         return self.__version_date
-    
+
     @property
     def default_expiring_date(self):
         return self.__default_expiring_date
-    
+
     @property
     def langs(self):
         return self.__langs
-    
+
     @property
     def empty_values(self):
         return self.__empty_values
@@ -171,7 +196,8 @@ class Config:
         self.__excel_sheet = os.getenv("EXCEL_SHEET")
         output_file_path = os.getenv("OUTPUT_FILE_PATH")
         output_file_name = os.getenv("OUTPUT_FILE_NAME")
-        self.__output_file = os.path.join(dirname, output_file_path, output_file_name)
+        self.__output_file = os.path.join(
+            dirname, output_file_path, output_file_name)
         self.__output_table = os.getenv("OUTPUT_TABLE")
         self.__version_date = str(os.getenv("DATE"))
         self.__default_expiring_date = str(os.getenv("DEFAULT_EXPIRING_DATE"))

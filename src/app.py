@@ -74,7 +74,7 @@ if not st.session_state.processing_started:
             update_env_file("DEFAULT_EXPIRING_DATE", default_expiring_date)
 
             st.session_state.processing_started = True
-            st.experimental_rerun()
+            st.rerun()
 
 if st.session_state.processing_started:
     # Processing phase

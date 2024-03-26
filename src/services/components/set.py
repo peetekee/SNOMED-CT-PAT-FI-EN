@@ -123,6 +123,28 @@ class Set:
             if new_row[column] in config.empty_values:
                 new_row[column] = old_row[column]
         return new_row
+    
+    @staticmethod
+    def lang_administrative(en_row: 'pd.Series', lang_row: 'pd.Series', columns: list) -> 'pd.Series':
+        """Sets the administrative columns of the new lang row
+
+        The administrative columns are copied from the old row to the new row.
+        The administrative columns are not visible to the end-users and are for internal use only.
+        In practise they are not visible in the koodistopalvelu.
+        They are for the pathologists and the developers.
+
+        Args:
+            new_row (pd.Series): The new row
+            old_row (pd.Series): The old row from the database
+            config (object): The configuration class
+
+        Returns:
+            pd.Series: The new row with the administrative columns set
+        """
+
+        for column in columns:
+            lang_row[column] = en_row[column]
+        return lang_row
 
     @staticmethod
     def fsn(new_row: 'pd.Series', old_row: 'pd.Series', config: object) -> 'pd.Series':
