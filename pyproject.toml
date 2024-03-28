@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "en-row-update"
+version = "0.1.0"
+description = ""
+authors = ["Matias Tolppanen <matias.tolppanen@outlook.com>"]
+readme = "README.md"
+packages = [{include = "en_row_update"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+pandas = "^2.1.4"
+openpyxl = "^3.1.2"
+SQLAlchemy = "^2.0.23"
+numpy = "^1.26.2"
+invoke = "^2.2.0"
+python-dotenv = "^1.0.0"
+psycopg2-binary = "^2.9.9"
+autopep8 = "^2.0.4"
+streamlit = "^1.32.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
