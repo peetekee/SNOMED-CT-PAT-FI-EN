@@ -93,7 +93,8 @@ if st.session_state.processing_started:
     # Processing phase
     progress_bar = st.progress(0)
     # Initialize and run the processing logic
-    main_process = Main(password)  # Ensure this uses updated environment variables if needed
+    main_process = Main(password) # Ensure this uses updated environment variables if needed
+    password = ""
     main_process.run(progress_callback=update_progress)
     progress_bar.empty()  # Clear the progress bar
 
