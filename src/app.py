@@ -12,7 +12,8 @@ def update_env_file(key, value):
 
 def save_uploaded_file(uploaded_file):
     if uploaded_file is not None:
-        save_path = '../files/uploaded'
+        dirname = os.path.dirname(__file__)
+        save_path = os.path.join(dirname, os.getenv('UPLOAD_PATH'))
         if not os.path.exists(save_path):
             os.makedirs(save_path)
         full_path = os.path.join(save_path, uploaded_file.name)
@@ -85,7 +86,8 @@ if st.session_state.processing_started:
     progress_bar.empty()  # Clear the progress bar
 
     # Show download button
-    processed_file_path = f"{os.getenv('OUTPUT_FILE_PATH')}{os.getenv('OUTPUT_FILE_NAME')}" # Update this path as needed
+    dirname = os.path.dirname(__file__)
+    processed_file_path = os.path.join(dirname, os.getenv('OUTPUT_FILE_PATH'), os.getenv('OUTPUT_FILE_NAME'))
     with open(processed_file_path, "rb") as file:
         st.download_button(
             label="Download Processed Excel File",
