@@ -5,7 +5,7 @@ from actions import Inactivate, New, FSN, NewConcept, NewTerm, Administrative
 from config import Config
 
 
-class Main:
+class Update:
     """The main driver class for the application
 
     This class is responsible for orchestrating the entire application. It reads the excel and database tables,

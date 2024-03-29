@@ -132,11 +132,13 @@ class Config:
         self.__excel_path = None
         self.__excel_sheet = None
         self.__output_file = None
+        self.__output_file_path = None
         self.__output_table = None
         self.__version_date = None
         self.__default_expiring_date = None
         self.__langs = ["fi", "sv"]
         self.__empty_values = [None, "", nan]
+        self.__cs_table = None
         self.__initialize()
 
     @property
@@ -162,6 +164,10 @@ class Config:
     @property
     def output_file(self):
         return self.__output_file
+    
+    @property
+    def output_file_path(self):
+        return self.__output_file_path
 
     @property
     def output_table(self):
@@ -182,6 +188,10 @@ class Config:
     @property
     def empty_values(self):
         return self.__empty_values
+    
+    @property
+    def cs_table(self):
+        return self.__cs_table
 
     def __initialize(self):
         dirname = os.path.dirname(__file__)
@@ -194,13 +204,12 @@ class Config:
         self.__database_schema = os.getenv("SCHEMA")
         self.__table_name = os.getenv("TABLE")
         self.__excel_path = os.getenv("EXCEL_FILE")
+        print(self.__excel_path)
         self.__excel_sheet = os.getenv("EXCEL_SHEET")
-        output_file_path = os.getenv("OUTPUT_FILE_PATH")
-        output_file_name = os.getenv("OUTPUT_FILE_NAME")
-        self.__output_file = os.path.join(
-            dirname, output_file_path, output_file_name)
+        self.__output_file = os.getenv("OUTPUT_FILE")
         self.__output_table = os.getenv("OUTPUT_TABLE")
         self.__version_date = str(os.getenv("DATE"))
         self.__default_expiring_date = str(os.getenv("DEFAULT_EXPIRING_DATE"))
         connection = f"postgresql://{os.getenv('USERNAME')}:{self.__password}@{os.getenv('CONNECTION_ADDRESS')}:{os.getenv('PORT')}/{os.getenv('DATABASE')}"
         self.__database_connection = create_engine(connection)
+        self.__cs_table = os.getenv("CS_TABLE")
