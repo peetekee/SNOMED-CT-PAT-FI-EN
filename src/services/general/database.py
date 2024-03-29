@@ -53,7 +53,7 @@ class Database:
         with self.__engine.connect() as connection:
             try:
                 df.to_sql(self.__output_table, con=connection,
-                          schema=self.__schema)
+                          schema=self.__schema, index=False, if_exists='replace')
             except Exception:
                 date = datetime.now()
                 date = date.strftime('%Y%m%d_%H%M')

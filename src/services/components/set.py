@@ -179,3 +179,18 @@ class Set:
         if new_row[COLUMNS["term"]] in config.empty_values:
             new_row[COLUMNS["term"]] = old_row[COLUMNS["term"]]
         return new_row
+
+    @staticmethod
+    def empty_status_column(table: 'pd.DataFrame') -> 'pd.DataFrame':
+        """Sets the status column to empty
+
+        Args:
+            table (pd.DataFrame): The table
+
+        Returns:
+            pd.DataFrame: The table with the status column set to empty
+        """
+
+        table[COLUMNS["status"]] = ""
+        return table
+    

@@ -3,7 +3,7 @@ from invoke import task
 
 @task
 def start(ctx):
-    ctx.run("streamlit run src/app.py", pty=True)
+    ctx.run("streamlit run src/Hello.py", pty=True)
 
 
 @task
