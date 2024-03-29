@@ -1,6 +1,5 @@
 import pandas as pd
-import numpy as np
-from services import Get, Database, Excel, Verhoeff
+from services import Get, Set, Database, Excel
 from actions import Inactivate, New, FSN, NewConcept, NewTerm, Administrative
 from config import Config
 
@@ -74,8 +73,10 @@ class Update:
         table = NewTerm(table, edit_rows["new_term"], self.__config).commit()
         if progress_callback:
             progress_callback(70)
+        table = Set.empty_status_column(table)
         self.__excel.post(table)
         if progress_callback:
+            progress_callback(90)
+        self.__database.post(table)
+        if progress_callback:
             progress_callback(100)
-        # table = self.__component.empty_status_column(table)
-        # self.__component.to_excel(table)

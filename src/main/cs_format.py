@@ -95,10 +95,26 @@ class CSFormat:
         final_df.to_excel(excel_path, index=False)
 
     def run(self, progress_callback=None):
+        if progress_callback:
+            progress_callback(5)
         df = self.__db.get()
+        if progress_callback:
+            progress_callback(10)
         df = self.__cs_columns(df)
+        if progress_callback:
+            progress_callback(20)
         df = self.__select_columns(df)
+        if progress_callback:
+            progress_callback(30)
         df = self.__rename_columns(df)
+        if progress_callback:
+            progress_callback(40)
         df = self.__sort_df(df)
+        if progress_callback:
+            progress_callback(50)
         df[COLUMNS["en_row_code_id"]] = df.apply(self.__parent_id, axis=1)
+        if progress_callback:
+            progress_callback(80)
         self.__to_excel(df)
+        if progress_callback:
+            progress_callback(100)
