@@ -3,17 +3,30 @@ from dotenv import load_dotenv, set_key
 import os
 from main import Main
 
+
+dirname = os.path.dirname(__file__)
+dotenv_path = os.path.join(dirname, "../.env")
 # Load the environment variables from the .env file
-load_dotenv()
+def check_and_create_dotenv(dotenv_path):
+    if not os.path.exists(dotenv_path):
+        with open(dotenv_path, 'w') as f:
+            pass  # Just create the file if it doesn't exist
+
+# Before loading the .env file, check if it exists and create it if it doesn't
+check_and_create_dotenv(dotenv_path)
+
+password = ""
+
+# Load the environment variables from the .env file
+load_dotenv(dotenv_path=dotenv_path)
 
 def update_env_file(key, value):
-    dotenv_path = "../.env"
+    # Reuse the dotenv_path variable defined earlier
     set_key(dotenv_path, key, value)
 
 def save_uploaded_file(uploaded_file):
     if uploaded_file is not None:
-        dirname = os.path.dirname(__file__)
-        save_path = os.path.join(dirname, os.getenv('UPLOAD_PATH'))
+        save_path = os.path.join(dirname, os.getenv('UPLOAD_PATH', 'uploads'))  # Provide a default path if not defined
         if not os.path.exists(save_path):
             os.makedirs(save_path)
         full_path = os.path.join(save_path, uploaded_file.name)
@@ -37,7 +50,7 @@ if not st.session_state.processing_started:
 
     with st.form("config_form"):
         username = st.text_input("USERNAME", os.getenv("USERNAME"))
-        password = st.text_input("PASSWORD", os.getenv("PASSWORD"), type="password")
+        password = st.text_input("PASSWORD", type="password")
         connection_address = st.text_input("CONNECTION_ADDRESS", os.getenv("CONNECTION_ADDRESS"))
         port = st.text_input("PORT", os.getenv("PORT"))
         database = st.text_input("DATABASE", os.getenv("DATABASE"))
@@ -62,7 +75,6 @@ if not st.session_state.processing_started:
 
             # Update other variables in the .env file
             update_env_file("USERNAME", username)
-            update_env_file("PASSWORD", password)
             update_env_file("CONNECTION_ADDRESS", connection_address)
             update_env_file("PORT", port)
             update_env_file("DATABASE", database)
@@ -81,7 +93,8 @@ if st.session_state.processing_started:
     # Processing phase
     progress_bar = st.progress(0)
     # Initialize and run the processing logic
-    main_process = Main()  # Ensure this uses updated environment variables if needed
+    main_process = Main(password) # Ensure this uses updated environment variables if needed
+    password = ""
     main_process.run(progress_callback=update_progress)
     progress_bar.empty()  # Clear the progress bar
 

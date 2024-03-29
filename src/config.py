@@ -124,7 +124,8 @@ class Config:
         __empty_values (list): List of empty values
     """
 
-    def __init__(self):
+    def __init__(self, password):
+        self.__password = password
         self.__database_connection = None
         self.__database_schema = None
         self.__table_name = None
@@ -201,5 +202,5 @@ class Config:
         self.__output_table = os.getenv("OUTPUT_TABLE")
         self.__version_date = str(os.getenv("DATE"))
         self.__default_expiring_date = str(os.getenv("DEFAULT_EXPIRING_DATE"))
-        connection = f"postgresql://{os.getenv('USERNAME')}:{os.getenv('PASSWORD')}@{os.getenv('CONNECTION_ADDRESS')}:{os.getenv('PORT')}/{os.getenv('DATABASE')}"
+        connection = f"postgresql://{os.getenv('USERNAME')}:{self.__password}@{os.getenv('CONNECTION_ADDRESS')}:{os.getenv('PORT')}/{os.getenv('DATABASE')}"
         self.__database_connection = create_engine(connection)

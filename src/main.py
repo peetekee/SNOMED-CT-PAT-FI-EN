@@ -12,8 +12,8 @@ class Main:
     determines the type of updates required, and then applies the updates to the database table. Finally, it writes
     the updated database table to the excel file.
     """
-    def __init__(self) -> None:
-        self.__config = Config()
+    def __init__(self, password) -> None:
+        self.__config = Config(password)
         self.__excel = Excel(self.__config)
         self.__database = Database(self.__config)
 
