@@ -1,7 +1,7 @@
 import json
 from datetime import datetime
 import pandas as pd
-from services import Database, Verhoeff
+from services import Database, Excel, Verhoeff
 from config import Config, COLUMNS
 
 
@@ -68,7 +68,7 @@ class Check:
         Includes a semantic tag.
         """
 
-        return df[~df[COLUMNS["concept_fsn"]].str.contains(".+\(([^()]*)\)$")], "Invalid Concept fsn, missing semantic tag"
+        return df[~df[COLUMNS["concept_fsn"]].str.contains(".+\(([^()]*)\)$")], "Invalid Concept fsn"
 
     @staticmethod
     def term(df):
@@ -94,17 +94,17 @@ class Check:
 
         return df[~df[COLUMNS["expiring_date"]].str.contains("^\d{4}-\d{2}-\d{2}$", na=False)], "Invalid expiring date format"
 
-    @staticmethod
-    def concept_fsn_capital(df):
-        """Check if concept fsn begins with capital letter."""
+    # @staticmethod
+    # def concept_fsn_capital(df):
+    #     """Check if concept fsn begins with capital letter."""
 
-        return df[~df[COLUMNS["concept_fsn"]].str.contains("^[A-ZÄÖ0-9].+$")], "FSN begins with a lowercase letter"
+    #     return df[~df[COLUMNS["concept_fsn"]].str.contains("^[A-ZÄÖ0-9].+$")], "FSN begins with a lowercase letter"
 
-    @staticmethod
-    def term_capital(df):
-        """Check if term begins with capital letter."""
+    # @staticmethod
+    # def term_capital(df):
+    #     """Check if term begins with capital letter."""
 
-        return df[~df[COLUMNS["term"]].str.contains("^[A-ZÄÖ0-9].+$")], "Term begins with a lowercase letter"
+    #     return df[~df[COLUMNS["term"]].str.contains("^[A-ZÄÖ0-9].+$")], "Term begins with a lowercase letter"
 
     # advanced checks
 
@@ -219,18 +219,6 @@ class Check:
         return non_unique_rows_df, "Term id is linked to multiple legacy term ids"
 
     @staticmethod
-    def concept_id_has_only_one_fsn(df):
-        """Check if concept id has only one FSN."""
-
-        non_unique_rows_df = pd.DataFrame()
-        grouped_df = df[COLUMNS["concept_id"]].unique()
-        for concept_id in grouped_df:
-            concept_rows = df[df[COLUMNS["concept_id"]] == concept_id]
-            if len(concept_rows[COLUMNS["concept_fsn"]].unique()) > 1:
-                non_unique_rows_df = pd.concat([non_unique_rows_df, concept_rows])
-        return non_unique_rows_df, "Concept id has multiple FSNs"
-
-    @staticmethod
     def term_id_has_only_one_term(df):
         """Check if term id has only one term."""
 
@@ -290,6 +278,7 @@ class Check:
     def __init__(self, password):
         self.__config = Config(password)
         self.__db = Database(self.__config)
+        self.__excel = Excel(self.__config)
 
     def general_checks(self, df):
         """Run general checks on the entire dataframe."""
@@ -306,8 +295,6 @@ class Check:
             Check.term,
             Check.beginning_date,
             Check.expiring_date,
-            Check.concept_fsn_capital,
-            Check.term_capital,
             Check.concept_id_checksum,
             Check.term_id_checksum,
             Check.concept_id_legacy_concept_id,
@@ -320,7 +307,6 @@ class Check:
             Check.no_overlap_term_id,
             Check.en_concept_id_is_linked_to_single_legacy_concept_id,
             Check.en_term_id_is_linked_to_single_legacy_term_id,
-            Check.concept_id_has_only_one_fsn,
             Check.term_id_has_only_one_term
         ]
         for check in df_checks:
@@ -352,14 +338,48 @@ class Check:
                     else:
                         invalid_values[message] = lineids
         return invalid_values
+    
+    def write_invalid_values_to_dataframe(self, df, invalid_values: dict):
+        """Write invalid values to a dataframe.
 
-    def write_invalid_values_to_json(self, invalid_values):
-        with open("invalid_values.json", "w") as f:
-            json.dump(invalid_values, f, indent=4)
+        The invalid values are in dict where key is the error message and value is a list of code ids.
+        The dataframe should have code_id, error_message, and rest of the columns from the original dataframe.
+        """
+    
+        # Initialize the dataframe with the required columns
+        invalid_df = pd.DataFrame(columns=[COLUMNS["code_id"], "error_message"] + list(df.columns.drop(COLUMNS["code_id"])))
+
+        for message, code_ids in invalid_values.items():
+            for code_id in code_ids:
+                # Get the row from the original dataframe and make a copy to avoid SettingWithCopyWarning
+                row = df.loc[df[COLUMNS["code_id"]] == code_id].copy()
+                # Add the error message to the row
+                row["error_message"] = message
+                # Reset the index of row to avoid InvalidIndexError during concatenation
+                row.reset_index(drop=True, inplace=True)
+                # Append the row to the invalid dataframe
+                invalid_df = pd.concat([invalid_df, row], ignore_index=True)
+
+        self.__excel.post_check(invalid_df)
+
+
+    # def write_invalid_values_to_json(self, invalid_values):
+    #     with open("invalid_values_2.json", "w") as f:
+    #         json.dump(invalid_values, f, indent=4)
 
     def run(self, progress_callback=None):
         df = self.__db.get()
+        if progress_callback:
+            progress_callback(20)
         df = df[df[COLUMNS["active"]] == "Y"]
+        if progress_callback:
+            progress_callback(40)
         invalid_values = self.general_checks(df)
+        if progress_callback:
+            progress_callback(60)
         invalid_values.update(self.en_row_checks(df))
-        self.write_invalid_values_to_json(invalid_values)
+        if progress_callback:
+            progress_callback(80)
+        self.write_invalid_values_to_dataframe(df, invalid_values)
+        if progress_callback:
+            progress_callback(100)

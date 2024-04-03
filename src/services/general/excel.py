@@ -40,3 +40,19 @@ class Excel:
             by=[COLUMNS["legacy_concept_id"], COLUMNS["en_row_code_id"], COLUMNS["lang"]])
         table.replace('None', nan, inplace=True)
         table.to_excel(self.__config.output_file, index=False)
+
+    def post_check(self, table: 'pd.DataFrame') -> None:
+        """Write the table to the excel file
+
+        The excel file is defined in the environment variables.
+        The columns are mapped to the correct names.
+        Args:
+            table (pd.DataFrame): The table to be written to the excel file
+        """
+        
+        table[[COLUMNS["code_id"], COLUMNS["concept_id"], COLUMNS["term_id"], COLUMNS["en_row_code_id"]]] = table[[
+            COLUMNS["code_id"], COLUMNS["concept_id"], COLUMNS["term_id"], COLUMNS["en_row_code_id"]]].astype(str)
+        table = table.sort_values(
+            by=["error_message",COLUMNS["legacy_concept_id"], COLUMNS["en_row_code_id"], COLUMNS["lang"]])
+        table.replace('None', nan, inplace=True)
+        table.to_excel(self.__config.output_file, index=False)

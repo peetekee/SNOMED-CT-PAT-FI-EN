@@ -55,6 +55,7 @@ COPY_COLUMNS = [
     COLUMNS["tays_snomed_ii"],
     COLUMNS["parent_concept_id"],
     COLUMNS["parent_concept_fsn"],
+    COLUMNS["icdo_morfologia"],
     COLUMNS["icdo_term"],
     COLUMNS["icdo_synonyms"],
     COLUMNS["sn2_code"],

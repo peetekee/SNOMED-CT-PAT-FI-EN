@@ -49,7 +49,6 @@ class Database:
         Args:
             df (pd.DataFrame): The dataframe to be written to the database
         """
-
         with self.__engine.connect() as connection:
             try:
                 df.to_sql(self.__output_table, con=connection,
