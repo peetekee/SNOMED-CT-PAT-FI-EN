@@ -51,7 +51,7 @@ if not st.session_state.check_processing_started and not st.session_state.check_
         database = st.text_input("DATABASE", os.getenv("DATABASE"))
         schema = st.text_input("SCHEMA", os.getenv("SCHEMA"))
         table = st.text_input("TABLE", os.getenv("TABLE"))
-        output_table = st.text_input("OUTPUT_TABLE_NAME", os.getenv("CS_TABLE"))    
+        output_file_name = st.text_input("OUTPUT_FILE_NAME")  
         submitted = st.form_submit_button("Update")
         if submitted:
             # Update other variables in the .env file
@@ -61,9 +61,10 @@ if not st.session_state.check_processing_started and not st.session_state.check_
             update_env_file("DATABASE", database)
             update_env_file("SCHEMA", schema)
             update_env_file("TABLE", table)
-            update_env_file("CS_TABLE", output_table)
+            update_env_file("OUTPUT_FILE", os.path.join(dirname, os.getenv("DOWNLOAD_PATH"), output_file_name))
             st.session_state.check_processing_started = True
             st.rerun()
+            
 if st.session_state.check_processing_started:
     # Processing phase
     progress_bar = st.progress(0)
@@ -74,16 +75,15 @@ if st.session_state.check_processing_started:
     progress_bar.empty()  # Clear the progress bar
     st.session_state.check_processing_completed = True
 
-# if st.session_state.check_processing_completed:
-#     # Show download button
-#     dirname = os.path.dirname(__file__)
-#     processed_file_path = os.path.join(dirname, os.getenv('OUTPUT_FILE_PATH'), os.getenv('CS_TABLE'))
-#     with open(processed_file_path, "rb") as file:
-#         st.download_button(
-#             label="Download Code Server Format Excel File",
-#             data=file,
-#             file_name=os.getenv('CS_TABLE'),
-#             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-#         )
-#     st.button("Reset", on_click=lambda: st.session_state.update(check_processing_started=False, check_processing_completed=False))
+if st.session_state.check_processing_completed:
+    # Show download button
+    processed_file_path = os.getenv("OUTPUT_FILE")
+    with open(processed_file_path, "rb") as file:
+        st.download_button(
+            label="Download Code Server Format Excel File",
+            data=file,
+            file_name=os.path.basename(os.getenv("OUTPUT_FILE")),
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
+    st.button("Reset", on_click=lambda: st.session_state.update(check_processing_started=False, check_processing_completed=False))
 

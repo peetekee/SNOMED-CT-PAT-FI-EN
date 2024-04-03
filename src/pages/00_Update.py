@@ -113,8 +113,7 @@ if st.session_state.update_processing_started:
 
 if st.session_state.update_processing_completed:
     # Show download button
-    dirname = os.path.dirname(__file__)
-    processed_file_path =os.getenv("OUTPUT_FILE")
+    processed_file_path = os.getenv("OUTPUT_FILE")
     with open(processed_file_path, "rb") as file:
         st.download_button(
             label="Download Processed Excel File",

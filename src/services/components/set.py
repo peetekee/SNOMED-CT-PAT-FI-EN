@@ -6,7 +6,7 @@ from .get import Get
 class Set:
     """This class is used to set values in columns
     """
-    
+
     @staticmethod
     def en_row_code_id(en_row: 'pd.Series', database: 'pd.DataFrame') -> 'pd.Series':
         """Sets the code id of the en row
@@ -26,7 +26,7 @@ class Set:
         return en_row
 
     @staticmethod
-    def term_id(new_row: 'pd.Series', old_row: 'pd.Series', database: 'pd.DataFrame', verhoeff: object, config: object, concept_change = False) -> 'pd.Series':
+    def term_id(new_row: 'pd.Series', old_row: 'pd.Series', database: 'pd.DataFrame', verhoeff: object, config: object, concept_change=False) -> 'pd.Series':
         """Sets the term id of the new row
 
         If the term id is missing or invalid, it generates a new term id.
@@ -123,7 +123,7 @@ class Set:
             if new_row[column] in config.empty_values:
                 new_row[column] = old_row[column]
         return new_row
-    
+
     @staticmethod
     def lang_administrative(en_row: 'pd.Series', lang_row: 'pd.Series', columns: list) -> 'pd.Series':
         """Sets the administrative columns of the new lang row
@@ -193,4 +193,3 @@ class Set:
 
         table[COLUMNS["status"]] = ""
         return table
-    

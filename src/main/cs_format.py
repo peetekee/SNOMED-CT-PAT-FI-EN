@@ -89,10 +89,8 @@ class CSFormat:
         return None if row["A:Lang"] == "en" else row["ParentId"]
 
     def __to_excel(self, final_df):
-        dirname = os.path.dirname(__file__)
-        excel_path = os.path.join(dirname, self.__config.output_file_path, self.__config.cs_table)
         final_df.replace('None', nan, inplace=True)
-        final_df.to_excel(excel_path, index=False)
+        final_df.to_excel(self.__config.output_file, index=False)
 
     def run(self, progress_callback=None):
         if progress_callback:
