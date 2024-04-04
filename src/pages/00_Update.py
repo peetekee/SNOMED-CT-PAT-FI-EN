@@ -23,7 +23,6 @@ def check_and_create_dotenv(dotenv_path):
 
 # Before loading the .env file, check if it exists and create it if it doesn't
 check_and_create_dotenv(dotenv_path)
-password = ""
 # Load the environment variables from the .env file
 load_dotenv(dotenv_path=dotenv_path)
 
@@ -88,6 +87,7 @@ if not st.session_state.update_processing_started and not st.session_state.updat
                     update_env_file("EXCEL_FILE", file_path)
             # Update other variables in the .env file
             update_env_file("USERNAME", username)
+            st.session_state.password = password
             update_env_file("CONNECTION_ADDRESS", connection_address)
             update_env_file("PORT", port)
             update_env_file("DATABASE", database)
@@ -105,8 +105,8 @@ if st.session_state.update_processing_started:
     progress_bar = st.progress(0)
     # Initialize and run the processing logic
     # Ensure this uses updated environment variables if needed
-    main_process = Update(password)
-    password = ""
+    main_process = Update(st.session_state.password)
+    st.session_state.password = None  # Clear the password from the session state
     main_process.run(progress_callback=update_progress)
     progress_bar.empty()  # Clear the progress bar
     st.session_state.update_processing_completed = True
