@@ -19,7 +19,6 @@ def check_and_create_dotenv(dotenv_path):
 # Before loading the .env file, check if it exists and create it if it doesn't
 check_and_create_dotenv(dotenv_path)
 
-password = ""
 # Load the environment variables from the .env file
 load_dotenv(dotenv_path=dotenv_path)
 
@@ -52,10 +51,11 @@ if not st.session_state.check_processing_started and not st.session_state.check_
         schema = st.text_input("SCHEMA", os.getenv("SCHEMA"))
         table = st.text_input("TABLE", os.getenv("TABLE"))
         output_file_name = st.text_input("OUTPUT_FILE_NAME")  
-        submitted = st.form_submit_button("Update")
+        submitted = st.form_submit_button("Check")
         if submitted:
             # Update other variables in the .env file
             update_env_file("USERNAME", username)
+            st.session_state.password = password
             update_env_file("CONNECTION_ADDRESS", connection_address)
             update_env_file("PORT", port)
             update_env_file("DATABASE", database)
@@ -69,8 +69,8 @@ if st.session_state.check_processing_started:
     # Processing phase
     progress_bar = st.progress(0)
     # Initialize and run the processing logic
-    main_process = Check(password) # Ensure this uses updated environment variables if needed
-    password = ""
+    main_process = Check(st.session_state.password) # Ensure this uses updated environment variables if needed
+    st.session_state.password = None  # Clear the password from the session state
     main_process.run(progress_callback=update_progress)
     progress_bar.empty()  # Clear the progress bar
     st.session_state.check_processing_completed = True
@@ -80,7 +80,7 @@ if st.session_state.check_processing_completed:
     processed_file_path = os.getenv("OUTPUT_FILE")
     with open(processed_file_path, "rb") as file:
         st.download_button(
-            label="Download Code Server Format Excel File",
+            label="Download Check Excel File",
             data=file,
             file_name=os.path.basename(os.getenv("OUTPUT_FILE")),
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
