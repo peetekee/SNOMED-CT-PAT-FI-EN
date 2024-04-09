@@ -66,6 +66,7 @@ if not st.session_state.check_processing_started and not st.session_state.check_
             st.rerun()
             
 if st.session_state.check_processing_started:
+    load_dotenv(dotenv_path=dotenv_path, override=True)
     # Processing phase
     progress_bar = st.progress(0)
     # Initialize and run the processing logic
@@ -73,7 +74,8 @@ if st.session_state.check_processing_started:
     st.session_state.password = None  # Clear the password from the session state
     main_process.run(progress_callback=update_progress)
     progress_bar.empty()  # Clear the progress bar
-    st.session_state.check_processing_completed = True
+    # st.session_state.check_processing_completed = True
+    st.session_state.update(check_processing_started=False, check_processing_completed=True)
 
 if st.session_state.check_processing_completed:
     # Show download button

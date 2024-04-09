@@ -25,7 +25,7 @@ class Put:
         Returns:
             pd.DataFrame: The updated database
         """
-        print(expiring_date)
+
         index = Get.index_by_codeid(database, code_id)
         database.loc[index, COLUMNS["active"]] = "N"
         database.loc[index, COLUMNS["expiring_date"]] = expiring_date

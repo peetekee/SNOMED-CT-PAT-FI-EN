@@ -205,7 +205,6 @@ class Config:
         self.__database_schema = os.getenv("SCHEMA")
         self.__table_name = os.getenv("TABLE")
         self.__excel_path = os.getenv("EXCEL_FILE")
-        print(self.__excel_path)
         self.__excel_sheet = os.getenv("EXCEL_SHEET")
         self.__output_file = os.getenv("OUTPUT_FILE")
         self.__output_table = os.getenv("OUTPUT_TABLE")
