@@ -14,9 +14,8 @@ load_dotenv(dotenv_path=dotenv_path)
 upload_dir = os.path.join(dirname, os.getenv("UPLOAD_PATH"))
 download_dir = os.path.join(dirname, os.getenv("DOWNLOAD_PATH"))
 
-# Utility function to list files in a directory
 def list_files(directory):
-    return [f for f in os.listdir(directory) if os.path.isfile(os.path.join(directory, f))]
+    return [f for f in os.listdir(directory) if os.path.isfile(os.path.join(directory, f)) and f.endswith(('.xlsx'))]
 
 # Utility function to delete a file
 def delete_file(directory, filename):

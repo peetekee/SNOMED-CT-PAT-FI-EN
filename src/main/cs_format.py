@@ -111,6 +111,10 @@ class CSFormat:
         if progress_callback:
             progress_callback(50)
         df[COLUMNS["en_row_code_id"]] = df.apply(self.__parent_id, axis=1)
+        df[COLUMNS["expiring_date"]] = df[COLUMNS["expiring_date"]].apply(
+            lambda x: x.replace("-", ""))
+        df[COLUMNS["beginning_date"]] = df[COLUMNS["beginning_date"]].apply(
+            lambda x: x.replace("-", ""))
         if progress_callback:
             progress_callback(80)
         self.__to_excel(df)
