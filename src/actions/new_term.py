@@ -75,15 +75,16 @@ class NewTerm:
 
         old_lang_rows = Get.lang_rows_by_en(self.__database, old_en_row)
         for _, old_lang_row in old_lang_rows.iterrows():
-            new_lang_row = old_lang_row.copy()
-            new_lang_row[COLUMNS["code_id"]] = Get.next_codeid(self.__database)
-            new_lang_row = Set.lang_row_concept_columns(
-                new_lang_row, new_en_row)
-            new_lang_row = Set.lang_administrative(
-                new_en_row, new_lang_row, ADMINISTRATIVE_COLUMNS)
             # check if the old lang row term id is the same as the old en row term id
             # if it is, set the new lang row term and term ids to the new en row term ids
             if old_lang_row[COLUMNS["legacy_term_id"]] == old_en_row[COLUMNS["legacy_term_id"]]:
+                new_lang_row = old_lang_row.copy()
+                new_lang_row[COLUMNS["code_id"]] = Get.next_codeid(self.__database)
+                new_lang_row = Set.lang_row_concept_columns(
+                    new_lang_row, new_en_row)
+                new_lang_row = Set.lang_administrative(
+                    new_en_row, new_lang_row, ADMINISTRATIVE_COLUMNS)
+            
                 new_lang_row[COLUMNS["legacy_term_id"]
                              ] = new_en_row[COLUMNS["legacy_term_id"]]
                 new_lang_row[COLUMNS["term_id"]
@@ -96,6 +97,12 @@ class NewTerm:
                 # add the new lang row to the database
                 self.__database = Post.new_row_to_database_table(
                     new_lang_row, self.__database)
+            else:
+                # if the old lang row term id is not the same as the old en row term id
+                # change only the COLUMNS["en_row_code_id"] = new_en_row code_id
+                self.__database = Put.lang_row_en_row_code_id(
+                    old_lang_row[COLUMNS["code_id"]], self.__database, new_en_row[COLUMNS["code_id"]])
+
 
     def commit(self) -> 'pd.DataFrame':
         """Main function

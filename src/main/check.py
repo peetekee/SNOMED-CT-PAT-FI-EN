@@ -23,7 +23,16 @@ class Check:
         Valid values include: A, C, D, M, T
         """
 
-        return df[~df[COLUMNS["tmdc"]].str[0].isin(['A', 'C', 'D', 'M', 'T'])], "Invalid tmdc, must start with A, C, D, M or T"
+        # Check if tmdc is empty
+        empty_tmdc = df[df[COLUMNS["tmdc"]].isna()]
+
+        # Check if tmdc starts with a valid character
+        invalid_tmdc = df[~df[COLUMNS["tmdc"]].str[0].isin(['A', 'C', 'D', 'M', 'T'])]
+
+        # Concatenate the two dataframes
+        result = pd.concat([empty_tmdc, invalid_tmdc])
+
+        return result, "Invalid tmdc, must be non-empty and start with A, C, D, M or T"
 
     @staticmethod
     def lang(df):
@@ -173,8 +182,6 @@ class Check:
             if len(concept_rows[COLUMNS["concept_fsn"]].unique()) > 1:
                 overlapping_rows = pd.concat([overlapping_rows, concept_rows])
             elif len(concept_rows[COLUMNS["legacy_concept_id"]].unique()) > 1:
-                overlapping_rows = pd.concat([overlapping_rows, concept_rows])
-            elif len(concept_rows[COLUMNS["tmdc"]].str[0].unique()) > 1:
                 overlapping_rows = pd.concat([overlapping_rows, concept_rows])
         return overlapping_rows, "Concept id overlap"
 

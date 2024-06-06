@@ -131,6 +131,8 @@ class New:
         """
 
         for _, en_row in self.__new_en_rows.iterrows():
+            # set en row lang to en
+            en_row[COLUMNS["lang"]] = "en"
             en_row = self.__set_en_row(en_row)
             self.__create_lang_rows(en_row)
         return self.__database
