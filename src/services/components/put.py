@@ -99,3 +99,19 @@ class Put:
         for column in administrative_columns:
             database.loc[index, column] = en_row[column]
         return database
+    
+    @staticmethod
+    def lang_row_en_row_code_id(code_id: int, database: 'pd.DataFrame', en_row_code_id: int) -> 'pd.DataFrame':
+        """Updates the en row code id of a lang row in the database
+
+        Args:
+            code_id (int): The code id of the row to be updated
+            database (pd.DataFrame): The database
+            en_row_code_id (int): The en row code id
+
+        Returns:
+            pd.DataFrame: The updated database
+        """
+        index = Get.index_by_codeid(database, code_id)
+        database.loc[index, COLUMNS["en_row_code_id"]] = en_row_code_id
+        return database
