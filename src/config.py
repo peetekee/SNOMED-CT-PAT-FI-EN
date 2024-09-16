@@ -129,6 +129,7 @@ class Config:
         self.__password = password
         self.__database_connection = None
         self.__database_schema = None
+        self.__intl_database_schema = None
         self.__table_name = None
         self.__excel_path = None
         self.__excel_sheet = None
@@ -149,6 +150,10 @@ class Config:
     @property
     def schema(self):
         return self.__database_schema
+    
+    @property
+    def intl_schema(self):
+        return self.__intl_database_schema
 
     @property
     def table(self):
@@ -203,6 +208,7 @@ class Config:
             print(r"\nCONNECTION = <username;password@connection_address/database>\n")
             print(r"SCHEMA = <schema_name>\n")
         self.__database_schema = os.getenv("SCHEMA")
+        self.__intl_database_schema = os.getenv("INTL_SCHEMA")
         self.__table_name = os.getenv("TABLE")
         self.__excel_path = os.getenv("EXCEL_FILE")
         self.__excel_sheet = os.getenv("EXCEL_SHEET")

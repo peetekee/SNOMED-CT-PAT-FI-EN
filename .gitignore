@@ -161,5 +161,6 @@ cython_debug/
 
 # Excel workbooks
 *.xlsx
+*.zip
 
 .DS_Store
