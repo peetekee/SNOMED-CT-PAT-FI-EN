@@ -1,5 +1,7 @@
+import os
 import pandas as pd
 import sqlalchemy as db
+import psycopg2
 from datetime import datetime
 from config import COLUMNS
 
@@ -13,8 +15,16 @@ class Database:
     def __init__(self, config) -> None:
         self.__engine = config.connection
         self.__schema = config.schema
+        self.__intl_schema = config.intl_schema
         self.__table_name = config.table
         self.__output_table = config.output_table
+        self.__database = config.database
+        self.__username = config.username
+        self.__password = config.password
+        self.__connection_address = config.connection_address
+        self.__intl_snap_view_creation_tables = ["snap_concept_view.sql", "snap_description_view.sql", "snap_langrefset_view.sql", "snap_fsn_view.sql", "snap_pref_view.sql", "snap_syn_view.sql", "snap_synall_view.sql"]
+        self.__intl_tables = ["snap_concept", "snap_attributevaluerefset", "snap_associationrefset", "snap_fsn"]
+        self.__view_folder = os.path.join(os.path.dirname(__file__), "../../intl/views/")
 
     def get(self) -> 'pd.DataFrame':
         """Read the table defined in the config file
@@ -37,6 +47,46 @@ class Database:
                 df = df.astype(str)
                 df[COLUMNS["code_id"]] = df[COLUMNS["code_id"]].astype(int)
                 return df
+        except Exception as e:
+            print('Error while reading data from database')
+            print(e)
+
+    def create_intl_views(self):
+        # Connect to the PostgreSQL database using the credentials
+        conn = psycopg2.connect(
+            dbname=self.__database,
+            user=self.__username,
+            password=self.__password,
+            host=self.__connection_address
+        )
+        cur = conn.cursor()
+
+        # Iterate over all SQL files in the Views folder and execute them
+        for sql_file in self.__intl_snap_view_creation_tables:
+            if sql_file.endswith(".sql"):
+                with open(os.path.join(self.__view_folder, sql_file), 'r') as file:
+                    print(sql_file)
+                    sql_query = file.read()
+                    try:
+                        cur.execute(sql_query)
+                        conn.commit()
+                    except Exception as e:
+                        print(e)
+        # Close the cursor and connection
+        cur.close()
+        conn.close()
+
+    def get_intl(self):
+        intl_tables = {}
+        try:
+            with self.__engine.connect() as connection:
+                for table_name in self.__intl_tables:
+                    query = db.text(
+                        f"SELECT * FROM {self.__intl_schema}.{table_name}")
+                    df = pd.read_sql(query, connection)
+                    df = df.astype(str)
+                    intl_tables[table_name] = df
+                return intl_tables
         except Exception as e:
             print('Error while reading data from database')
             print(e)

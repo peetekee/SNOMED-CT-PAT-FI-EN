@@ -2,6 +2,8 @@ import streamlit as st
 import subprocess
 from dotenv import load_dotenv
 import os
+from services import Database
+from config import Config
 
 # Load the environment file path and logo
 dirname = os.path.dirname(__file__)
@@ -57,6 +59,7 @@ def run_command(file_path):
 
 # Main application
 zip_file = st.file_uploader("International release zip", type=['zip'])
+password = st.text_input("Password", type="password")
 
 # When the form is submitted, upload the zip and run the command
 if st.button("Upload to Database"):
@@ -67,6 +70,9 @@ if st.button("Upload to Database"):
             st.write(f"File uploaded: {zip_path}")
             # Run the bash script with the uploaded zip path
             run_command(zip_path)
+            config = Config(password)
+            db = Database(config)
+            db.create_intl_views()
         else:
             st.error("File upload failed!")
     else:
