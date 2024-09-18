@@ -22,7 +22,7 @@ class Database:
         self.__username = config.username
         self.__password = config.password
         self.__connection_address = config.connection_address
-        self.__intl_tables = ["snap_concept", "snap_attributevaluerefset", "snap_associationrefset", "snap_pref", "snap_fsn"]
+        self.__intl_tables = ["snap_concept", "snap_description", "snap_attributevaluerefset", "snap_associationrefset", "snap_pref", "snap_fsn"]
         self.__view_file = os.path.join(os.path.dirname(__file__), "../../intl/create_snap_views.sql")
 
     def get(self) -> 'pd.DataFrame':

@@ -134,6 +134,7 @@ class Config:
         self.__excel_path = None
         self.__excel_sheet = None
         self.__output_file = None
+        self.__intl_output_file = None
         self.__output_file_path = None
         self.__output_table = None
         self.__version_date = None
@@ -177,6 +178,10 @@ class Config:
     @property
     def output_file(self):
         return self.__output_file
+    
+    @property
+    def intl_output_file(self):
+        return self.__intl_output_file
     
     @property
     def output_file_path(self):
@@ -232,6 +237,7 @@ class Config:
         self.__excel_path = os.getenv("EXCEL_FILE")
         self.__excel_sheet = os.getenv("EXCEL_SHEET")
         self.__output_file = os.getenv("OUTPUT_FILE")
+        self.__intl_output_file = os.getenv("INTL_OUTPUT_FILE")
         self.__output_table = os.getenv("OUTPUT_TABLE")
         self.__version_date = str(os.getenv("DATE"))
         self.__default_expiring_date = str(os.getenv("DEFAULT_EXPIRING_DATE"))

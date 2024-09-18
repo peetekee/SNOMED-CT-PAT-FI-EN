@@ -1,41 +1,43 @@
 import pandas as pd
-import numpy as np
-from services import Database, Get
+from services import Database, Get, Excel
 from config import Config
 
 
 
 class CompareIntl:
-    def __init__(self, password) -> None:
+    def __init__(self, password, start, end) -> None:
         self.__conf = Config(password)
+        self.__excel = Excel(self.__conf)
         self.__database = Database(self.__conf)
-        self.__run()
+        self.__start = start
+        self.__end = end
 
-    def __run(self):
+    def run(self, progress_callback=None):
+        if progress_callback:
+            progress_callback(5)
         thl_sct_pat = self.__database.get()
         thl_sct_pat = Get.en_row(thl_sct_pat)
         intl_tables = self.__database.get_intl()
+        if progress_callback:
+            progress_callback(10)
         snap_concept = intl_tables["snap_concept"]
+        snap_concept['effectivetime'] = pd.to_datetime(snap_concept['effectivetime'], format='%Y%m%d')
+        snap_concept = snap_concept[(snap_concept['effectivetime'] >= self.__start) & (snap_concept['effectivetime'] <= self.__end)]
+
         snap_attributevaluerefset = intl_tables["snap_attributevaluerefset"]
+
         snap_associationrefset = intl_tables["snap_associationrefset"]
+
         snap_pref = intl_tables["snap_pref"]
+
         snap_fsn = intl_tables["snap_fsn"]
-        #thl_sct_pat = ['CodeId', 'status', 'tmdc', 'A:Lang', 'A:Active', 'A:Legacy_ConceptID',
-       #'A:Legacy_TermID', 'tays_snomed_ii', 'A:SNOMEDCT', 'A:SCT_Concept_FSN',
-       #'A:SCT_TermID', 'ParentId', 'LongName', 'parent_conceptid',
-       #'parent_concept_fsn', 'edit_comment', 'av_notes',
-       #'A:ICD-O-3_Morfologia', 'icdo_term', 'icdo_synonyms', 'BeginningDate',
-       #'ExpiringDate', 'A:KorvaavaKoodi', 'A:InaktivoinninSelite', 'sn2_code',
-       #'sn2_term', 'endo', 'gastro', 'gyne', 'iho', 'hema', 'keuhko', 'nefro',
-       #'neuro', 'paa_kaula', 'pedi', 'pehmyt', 'rinta', 'syto', 'uro',
-       #'verenkierto_yleiset']
-        # snap_concept = ['id', 'effectivetime', 'active', 'moduleid', 'definitionstatusid']
-        # snap_attributevaluerefset = ['id', 'effectivetime', 'active', 'moduleid', 'refsetid', 'referencedcomponentid', 'valueid']
-        # snap_associationrefset = ['id', 'effectivetime', 'active', 'moduleid', 'refsetid', 'referencedcomponentid', 'targetcomponentid']
-        # snap_pref = ['id', 'effectivetime', 'active', 'moduleid', 'conceptid','languagecode', 'typeid', 'term', 'casesignificanceid']
-        # snap_fsn = ['id', 'effectivetime', 'active', 'moduleid', 'conceptid', 'languagecode', 'typeid', 'term', 'casesignificanceid']
+        snap_fsn['effectivetime'] = pd.to_datetime(snap_fsn['effectivetime'], format='%Y%m%d')
+        snap_fsn = snap_fsn[(snap_fsn['effectivetime'] >= self.__start) & (snap_fsn['effectivetime'] <= self.__end)]
 
        # Create inactive_conceptid equivalent
+        if progress_callback:
+            progress_callback(20)
+
         inactive_conceptid = thl_sct_pat[thl_sct_pat['A:Active'] == 'Y'].merge(
             snap_concept[snap_concept['active'] == '0'],
             left_on='A:SNOMEDCT',
@@ -65,14 +67,16 @@ class CompareIntl:
         #clean up
         reason = reason[["CodeId", "A:SNOMEDCT", "term"]]
 
+        if progress_callback:
+            progress_callback(40)
+
         # Function to create association tables (replaced_by, same_as, alternative, etc.)
         def create_association_table(row):
             # get orginal row
             original_row = thl_sct_pat[thl_sct_pat["CodeId"] == row["CodeId"]].copy()
             # set reason for inactivation
             inactivation_reason = reason[reason["CodeId"] == row["CodeId"]]["term"].values[0]
-            original_row["Reason_for_Inactivation"] = inactivation_reason
-            original_row["Association_Type"] = None
+            original_row["Meta"] = inactivation_reason
             # Get the replacement suggestion if any.
             associations_df = snap_associationrefset[snap_associationrefset['referencedcomponentid'] == row["A:SNOMEDCT"]]
             if not associations_df.empty:
@@ -106,7 +110,6 @@ class CompareIntl:
                 for index, replacement_row in associations_df.iterrows():
                     new_row = original_row.copy()
                     new_row["status"] = "new_concept"
-                    new_row["Reason_for_Inactivation"] = ""
                     legacy, sct_id = Get.legacyid(new_row["A:Legacy_ConceptID"].values[0])
                     new_id = f"{legacy}-{replacement_row['targetcomponentid']}"
                     new_row["A:Legacy_ConceptID"] = new_id
@@ -115,84 +118,50 @@ class CompareIntl:
                     new_row["LongName"] = ""
                     new_row["A:SNOMEDCT"] = replacement_row["targetcomponentid"]
                     new_row["A:SCT_Concept_FSN"] = replacement_row["A:SCT_Concept_FSN"]
-                    new_row["Association_Type"] = replacement_row["Association_Type"]
-                    result = pd.concat([result, new_row])
-                
+                    new_row["Meta"] = replacement_row["Association_Type"]
+                    result = pd.concat([result, new_row])          
                 return result
+        
+        def create_fsn_updates():
+            fi_fsn_intl_fsn = thl_sct_pat.merge(
+                snap_fsn[["conceptid", "term"]],
+                left_on='A:SNOMEDCT',
+                right_on='conceptid',
+                how='inner'
+            )
 
+            rows_with_different_values = fi_fsn_intl_fsn[fi_fsn_intl_fsn["A:SCT_Concept_FSN"] != fi_fsn_intl_fsn["term"]]
 
+            product = None
+            if not rows_with_different_values.empty:
+                counter = 1
+                for i, row in rows_with_different_values.iterrows():
+                    row["Meta"] = ""
+                    row.reset_index(drop=True)
+                    new_row = row.copy()
+                    new_row["status"] = "fsn"
+                    new_row["Meta"] = "New FSN"
+                    new_row["A:SCT_Concept_FSN"] = row["term"]
+                    new_row.reset_index(drop=True)
+                    if counter == 1:
+                        product = pd.DataFrame([row])
+                        product = pd.concat([product, pd.DataFrame([new_row])])
+                        counter += 1
+                    else:
+                        product = pd.concat([product, pd.DataFrame([row])])
+                        product = pd.concat([product, pd.DataFrame([new_row])])
+                return product
 
         collection = []
         for index, row in inactive_conceptid.iterrows():
             result = create_association_table(row)
             collection.append(result)
-        
+        if progress_callback:
+            progress_callback(75)
         final = pd.concat(collection)
-        final.to_excel("tmp.xlsx")
-
-
-        # Create each association table
-        replaced_by = create_association_table('900000000000526001', 'Replaced by')
-        same_as = create_association_table('900000000000527005', 'Same as')
-        alternative = create_association_table('900000000000530003', 'Alternative')
-        possibly_replaced_by = create_association_table('1186921001', 'Possibly replaced by')
-        partially_equivalent_to = create_association_table('1186924009', 'Partially equivalent to')
-        possibly_equivalent_to = create_association_table('900000000000523009', 'Possibly equivalent to')
-
-        # Union of all replacements (using concat)
-        all_replacements = pd.concat([replaced_by, same_as, alternative, possibly_replaced_by, 
-                                      partially_equivalent_to, possibly_equivalent_to])
-
-        # Final merge with fsn and concept tables for extra details
-        result = reason.merge(all_replacements, on='codeid', how='left') \
-                       .merge(snap_fsn, left_on='new_conceptid', right_on='conceptid', how='left') \
-                       .merge(snap_concept, left_on='conceptid', right_on='id', how='left')
-
-        # Filter by effective time and language
-        final_result = result[(pd.to_datetime(result['effectivetime'], format='%Y%m%d').between('2023-10-01', '2024-01-02')) & 
-                              (result['A:Lang'] == 'en')]
-
-        # Output or further processing
-        import ace_tools as tools; tools.display_dataframe_to_user(name="Final Replacement Data", dataframe=final_result)
-        
-
-
-
-
-
-
-# # Function to handle different replacement types
-# def get_replacement(ic, refsetid, association_name):
-#     replacement = ic.merge(snap_associationrefset, left_on='A:SNOMEDCT', right_on='referencedcomponentid', how='left')
-#     replacement = replacement[(replacement['refsetid'] == refsetid) & (replacement['active'] == '1')]
-#     replacement['association'] = association_name
-#     return replacement[['codeid', 'association', 'targetcomponentid']]
-
-# # Replacement subqueries
-# replaced_by = get_replacement(inactive_conceptid, '900000000000526001', 'Replaced by')
-# same_as = get_replacement(inactive_conceptid, '900000000000527005', 'Same as')
-# alternative = get_replacement(inactive_conceptid, '900000000000530003', 'Alternative')
-# possibly_replaced_by = get_replacement(inactive_conceptid, '1186921001', 'Possibly replaced by')
-# possibly_equivalent_to = get_replacement(inactive_conceptid, '900000000000523009', 'Possibly equivalent to')
-# partially_equivalent_to = get_replacement(inactive_conceptid, '1186924009', 'Partially equivalent to')
-
-# # Union all the replacements
-# all_replacements = pd.concat([replaced_by, same_as, alternative, possibly_replaced_by, possibly_equivalent_to, partially_equivalent_to])
-
-# # Final query
-# final = inactive_conceptid.merge(reason, on='codeid', how='left')
-# final = final.merge(all_replacements, on='codeid', how='left')
-# final = final.merge(snap_fsn, left_on='targetcomponentid', right_on='conceptid', how='left')
-# final = final.merge(snap_concept, left_on='conceptid', right_on='id', how='left')
-
-# # Filter by date range and language
-# final['effectivetime'] = pd.to_datetime(final['effectivetime'], format='%Y%m%d')
-# final = final[(final['effectivetime'] >= '2023-10-01') & (final['effectivetime'] <= '2024-01-02')]
-# final = final[final['A:Lang'] == 'en']
-
-# # Select columns
-# final_result = final[['codeid', 'reason_for_inactivation', 'association', 'targetcomponentid', 'term', 'active', 'effectivetime']]
-
-# # Display result
-# import ace_tools as tools; tools.display_dataframe_to_user(name="Final Result", dataframe=final_result)
-
+        fsn_result = create_fsn_updates()
+        fsn_result = fsn_result.drop(['conceptid', 'term'], axis=1)
+        final = pd.concat([final, fsn_result])
+        if progress_callback:
+            progress_callback(100)
+        self.__excel.post_intl_comparison(final)
