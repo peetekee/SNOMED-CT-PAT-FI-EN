@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from services import Database
+from services import Database, Get
 from config import Config
 
 
@@ -13,7 +13,7 @@ class CompareIntl:
 
     def __run(self):
         thl_sct_pat = self.__database.get()
-        thl_sct_pat = thl_sct_pat[thl_sct_pat['A:Lang'] == 'en']
+        thl_sct_pat = Get.en_row(thl_sct_pat)
         intl_tables = self.__database.get_intl()
         snap_concept = intl_tables["snap_concept"]
         snap_attributevaluerefset = intl_tables["snap_attributevaluerefset"]
@@ -64,57 +64,72 @@ class CompareIntl:
 
         #clean up
         reason = reason[["CodeId", "A:SNOMEDCT", "term"]]
-        reason = reason.rename(columns={"term": "Reason for Inactivation"})
-        print(reason)
-
-
-
-        
-
-        # add names to reasons
-        inactive_conceptid = inactive_conceptid.merge(
-            snap_pref,
-
-        )
-
-        # Create reason equivalent
-        conditions = [
-            (snap_attributevaluerefset['valueid'] == '900000000000482003'),
-            (snap_attributevaluerefset['valueid'] == '900000000000483008'),
-            (snap_attributevaluerefset['valueid'] == '900000000000484002'),
-            (snap_attributevaluerefset['valueid'] == '900000000000485001'),
-            (snap_attributevaluerefset['valueid'] == '900000000000486000'),
-            (snap_attributevaluerefset['valueid'] == '900000000000487009'),
-            (snap_attributevaluerefset['valueid'] == '900000000000492006'),
-            (snap_attributevaluerefset['valueid'] == '1186917008'),
-            (snap_attributevaluerefset['valueid'] == '1186919006'),
-            (snap_attributevaluerefset['valueid'] == '723277005')
-        ]
-        reasons = ['Duplicate', 'Outdated', 'Ambiguous', 'Erroneous', 'Limited', 
-                   'Moved elsewhere', 'Pending move', 'Classification derived', 
-                   'Unknown meaning', 'Nonconformance to editorial policy']
-
-        snap_attributevaluerefset['reason_for_inactivation'] = np.select(conditions, reasons, default='Unknown')
-
-        # Merge inactive_conceptid with reason
-        reason = inactive_conceptid.merge(
-            snap_attributevaluerefset[snap_attributevaluerefset['active'] == '1'],
-            left_on='A:SNOMEDCT',
-            right_on='referencedcomponentid',
-            how='left'
-        )
 
         # Function to create association tables (replaced_by, same_as, alternative, etc.)
-        def create_association_table(refsetid, association_label):
-            return inactive_conceptid.merge(
-                snap_associationrefset[
-                    (snap_associationrefset['refsetid'] == refsetid) & 
-                    (snap_associationrefset['active'] == '1')
-                ],
-                left_on='A:SNOMEDCT',
-                right_on='referencedcomponentid',
-                how='left'
-            ).assign(association=association_label)
+        def create_association_table(row):
+            # get orginal row
+            original_row = thl_sct_pat[thl_sct_pat["CodeId"] == row["CodeId"]].copy()
+            # set reason for inactivation
+            inactivation_reason = reason[reason["CodeId"] == row["CodeId"]]["term"].values[0]
+            original_row["Reason_for_Inactivation"] = inactivation_reason
+            original_row["Association_Type"] = None
+            # Get the replacement suggestion if any.
+            associations_df = snap_associationrefset[snap_associationrefset['referencedcomponentid'] == row["A:SNOMEDCT"]]
+            if not associations_df.empty:
+                # Get association name
+                associations_df = associations_df.merge(
+                    snap_pref[["conceptid", "term"]],
+                    left_on='refsetid',
+                    right_on='conceptid',
+                    how='left'
+                ).rename(columns={"term":"Association_Type"})
+
+                # Get target concept fsn and pref
+                associations_df = associations_df.merge(
+                    snap_fsn[["conceptid", "term"]],
+                    left_on='targetcomponentid',
+                    right_on='conceptid',
+                    how='left'
+                ).rename(columns={"term":"A:SCT_Concept_FSN"})
+
+
+                # Problems with US - GB pref
+                # associations_df = associations_df.merge(
+                #     snap_pref[["conceptid", "term"]],
+                #     left_on='targetcomponentid',
+                #     right_on='conceptid',
+                #     how='left'
+                # ).rename(columns={"term":"LongName"})
+
+                associations_df = associations_df[['targetcomponentid', 'Association_Type', 'A:SCT_Concept_FSN']]
+                result = original_row
+                for index, replacement_row in associations_df.iterrows():
+                    new_row = original_row.copy()
+                    new_row["status"] = "new_concept"
+                    new_row["Reason_for_Inactivation"] = ""
+                    legacy, sct_id = Get.legacyid(new_row["A:Legacy_ConceptID"].values[0])
+                    new_id = f"{legacy}-{replacement_row['targetcomponentid']}"
+                    new_row["A:Legacy_ConceptID"] = new_id
+                    new_row["A:Legacy_TermID"] = f"{legacy}-"
+                    new_row["A:SCT_TermID"] = ""
+                    new_row["LongName"] = ""
+                    new_row["A:SNOMEDCT"] = replacement_row["targetcomponentid"]
+                    new_row["A:SCT_Concept_FSN"] = replacement_row["A:SCT_Concept_FSN"]
+                    new_row["Association_Type"] = replacement_row["Association_Type"]
+                    result = pd.concat([result, new_row])
+                
+                return result
+
+
+
+        collection = []
+        for index, row in inactive_conceptid.iterrows():
+            result = create_association_table(row)
+            collection.append(result)
+        
+        final = pd.concat(collection)
+        final.to_excel("tmp.xlsx")
+
 
         # Create each association table
         replaced_by = create_association_table('900000000000526001', 'Replaced by')
