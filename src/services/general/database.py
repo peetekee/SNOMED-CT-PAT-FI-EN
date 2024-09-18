@@ -22,9 +22,8 @@ class Database:
         self.__username = config.username
         self.__password = config.password
         self.__connection_address = config.connection_address
-        self.__intl_snap_view_creation_tables = ["snap_concept_view.sql", "snap_description_view.sql", "snap_langrefset_view.sql", "snap_fsn_view.sql", "snap_pref_view.sql", "snap_syn_view.sql", "snap_synall_view.sql"]
-        self.__intl_tables = ["snap_concept", "snap_attributevaluerefset", "snap_associationrefset", "snap_fsn"]
-        self.__view_folder = os.path.join(os.path.dirname(__file__), "../../intl/views/")
+        self.__intl_tables = ["snap_concept", "snap_attributevaluerefset", "snap_associationrefset", "snap_pref", "snap_fsn"]
+        self.__view_file = os.path.join(os.path.dirname(__file__), "../../intl/create_snap_views.sql")
 
     def get(self) -> 'pd.DataFrame':
         """Read the table defined in the config file
@@ -62,16 +61,13 @@ class Database:
         cur = conn.cursor()
 
         # Iterate over all SQL files in the Views folder and execute them
-        for sql_file in self.__intl_snap_view_creation_tables:
-            if sql_file.endswith(".sql"):
-                with open(os.path.join(self.__view_folder, sql_file), 'r') as file:
-                    print(sql_file)
-                    sql_query = file.read()
-                    try:
-                        cur.execute(sql_query)
-                        conn.commit()
-                    except Exception as e:
-                        print(e)
+        with open(self.__view_file, 'r') as file:
+            sql_query = file.read()
+            try:
+                cur.execute(sql_query)
+                conn.commit()
+            except Exception as e:
+                print(e)
         # Close the cursor and connection
         cur.close()
         conn.close()
