@@ -6,6 +6,7 @@ basedir="$(pwd)"
 releasePath=$1
 dbName=$2
 loadType=$3
+connectionAddress=$4
 
 if [ -z ${loadType} ]
 then
@@ -108,7 +109,7 @@ addLoadScript der2_cRefset_AttributeValueTYPE_INT_DATE.txt attributevaluerefset
 addLoadScript der2_cRefset_LanguageTYPE-en_INT_DATE.txt langrefset
 addLoadScript der2_cRefset_AssociationTYPE_INT_DATE.txt associationrefset
 
-psql -U ${dbUsername} -p ${dbPortNumber} -d ${dbName} << EOF
+psql -U ${dbUsername} -p ${dbPortNumber} -d ${dbName} -h ${connectionAddress}<< EOF
 	\ir create-database-postgres.sql;
 	\ir environment-postgresql.sql;
 	\ir ${generatedLoadScript};

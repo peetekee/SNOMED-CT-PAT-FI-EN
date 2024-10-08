@@ -36,11 +36,12 @@ def save_uploaded_file(uploaded_file):
 # Function to run the bash command and stream the output in real-time
 def run_command(file_path):
     script_path = os.path.join(dirname, "../intl/PostgreSQL/load_release-postgresql.sh")
+    connection_address = os.getenv('CONNECTION_ADDRESS')
     database = os.getenv('DATABASE')
     load_type = "FULL"
     
     process = subprocess.Popen(
-        [script_path, file_path, database, load_type],
+        [script_path, file_path, database, load_type, connection_address],
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
