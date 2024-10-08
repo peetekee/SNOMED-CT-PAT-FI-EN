@@ -7,6 +7,8 @@ releasePath=$1
 dbName=$2
 loadType=$3
 connectionAddress=$4
+export PGPASSWORD=$5
+
 
 if [ -z ${loadType} ]
 then

@@ -41,7 +41,7 @@ def run_command(file_path):
     load_type = "FULL"
     
     process = subprocess.Popen(
-        [script_path, file_path, database, load_type, connection_address],
+        [script_path, file_path, database, load_type, connection_address, st.session_state.password],
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
@@ -53,7 +53,6 @@ def run_command(file_path):
     process.stdin.write(os.getenv('USERNAME') + "\n")
     process.stdin.write(os.getenv('PORT') + "\n")
     process.stdin.write("A" + "\n")
-    process.stdin.write(st.session_state.password + "\n")
 
 
     # Stream the output line by line in real-time
