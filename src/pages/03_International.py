@@ -54,9 +54,11 @@ def run_command(file_path):
     process.stdin.write(os.getenv('PORT') + "\n")
     process.stdin.write("A" + "\n")
 
-
-    # Stream the output line by line in real-time
     for stdout_line in iter(process.stdout.readline, ""):
+        st.text(stdout_line)
+ 
+    # Stream the output line by line in real-time
+    for stdout_line in iter(process.stderr.readline, ""):
         st.text(stdout_line)
 
 # Main application
