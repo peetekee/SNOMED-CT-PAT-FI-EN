@@ -53,6 +53,8 @@ def run_command(file_path):
     process.stdin.write(os.getenv('USERNAME') + "\n")
     process.stdin.write(os.getenv('PORT') + "\n")
     process.stdin.write("A" + "\n")
+    process.stdin.write(st.session_state.password + "\n")
+
 
     # Stream the output line by line in real-time
     for stdout_line in iter(process.stdout.readline, ""):
@@ -68,10 +70,12 @@ if st.button("Upload to Database"):
         # Save the uploaded file and get its path
         zip_path = save_uploaded_file(zip_file)
         if zip_path:
+            st.session_state.password = password
             st.write(f"File uploaded: {zip_path}")
             # Run the bash script with the uploaded zip path
             run_command(zip_path)
-            config = Config(password)
+            config = Config(st.session_state.password)
+            st.session_state.password = ""
             db = Database(config)
             db.create_intl_views()
         else:
