@@ -41,6 +41,57 @@ class Excel:
         table.replace('None', nan, inplace=True)
         table.to_excel(self.__config.output_file, index=False)
 
+    def post_intl_comparison(self, table: 'pd.Dataframe'):
+        mask = [
+            COLUMNS["code_id"],
+            "Meta",
+            COLUMNS["status"],
+            COLUMNS["tmdc"],
+            COLUMNS["lang"],
+            COLUMNS["active"],
+            COLUMNS["legacy_concept_id"],
+            COLUMNS["legacy_term_id"],
+            COLUMNS["tays_snomed_ii"],
+            COLUMNS["concept_id"],
+            COLUMNS["concept_fsn"],
+            COLUMNS["term_id"],
+            COLUMNS["en_row_code_id"],
+            COLUMNS["term"],
+            COLUMNS["parent_concept_id"],
+            COLUMNS["parent_concept_fsn"],
+            COLUMNS["edit_comment"],
+            COLUMNS["icdo_morfologia"],
+            COLUMNS["icdo_term"],
+            COLUMNS["icdo_synonyms"],
+            COLUMNS["beginning_date"],
+            COLUMNS["expiring_date"],
+            COLUMNS["korvaava_koodi"],
+            COLUMNS["inaktivoinnin_selite"],
+            COLUMNS["sn2_code"],
+            COLUMNS["sn2_term"],
+            COLUMNS["endo"],
+            COLUMNS["gastro"],
+            COLUMNS["gyne"],
+            COLUMNS["iho"],
+            COLUMNS["hema"],
+            COLUMNS["keuhko"],
+            COLUMNS["nefro"],
+            COLUMNS["neuro"],
+            COLUMNS["paa_kaula"],
+            COLUMNS["pedi"],
+            COLUMNS["pehmyt"],
+            COLUMNS["rinta"],
+            COLUMNS["syto"],
+            COLUMNS["uro"],
+            COLUMNS["verenkierto_yleiset"],
+        ]
+        
+        table = table[mask]
+        table = table.sort_values(
+            by=[COLUMNS["code_id"], COLUMNS["status"]])
+        table.replace('None', nan, inplace=True)
+        table.to_excel(self.__config.intl_output_file, index=False)
+
     def post_check(self, table: 'pd.DataFrame') -> None:
         """Write the table to the excel file
 

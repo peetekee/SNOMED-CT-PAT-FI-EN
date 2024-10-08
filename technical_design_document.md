@@ -23,13 +23,13 @@ This document describes the technical design of the project. It is intended to b
 ├── README.md
 ├── files
 │   ├── download
+│   ├── rf2release
 │   └── upload
 ├── poetry.lock
 ├── pyproject.toml
 ├── src
 │   ├── Home.py
 │   ├── actions
-│   │   ├── __init__.py
 │   │   ├── activate.py
 │   │   ├── administrative.py
 │   │   ├── fsn.py
@@ -39,28 +39,41 @@ This document describes the technical design of the project. It is intended to b
 │   │   ├── new_term.py
 │   │   └── other.py
 │   ├── config.py
+│   ├── intl
+│   │   ├── PostgreSQL
+│   │   │   ├── README.md
+│   │   │   ├── Verhoeff.sql
+│   │   │   ├── copy_kanta_table.sql
+│   │   │   ├── create-database-postgres.sql
+│   │   │   ├── environment-postgresql.sql
+│   │   │   ├── indexing-postgres.sql
+│   │   │   ├── load-postgresql.sql
+│   │   │   ├── loadFileToDatabase.sql
+│   │   │   ├── load_release-postgresql.sh
+│   │   │   └── tmp_loader.sql
+│   │   ├── create_snap_views.sql
+│   │   └── rf2release
 │   ├── main
-│   │   ├── __init__.py
+│   │   ├── check.py
 │   │   ├── cs_format.py
+│   │   ├── intl_compare.py
 │   │   └── update.py
 │   ├── pages
 │   │   ├── 00_Update.py
 │   │   ├── 01_Code_Server_Format.py
 │   │   ├── 02_Check.py
-│   │   ├── 03_Files.py
-│   │   ├── __init__.py
+│   │   ├── 03_International.py
+│   │   ├── 04_Compare_to_Intl.py
+│   │   ├── 05_Files.py
 │   │   └── assets
 │   │       └── thl_logo_fi.png
 │   └── services
-│       ├── __init__.py
 │       ├── components
-│       │   ├── __init__.py
 │       │   ├── get.py
 │       │   ├── post.py
 │       │   ├── put.py
 │       │   └── set.py
 │       └── general
-│           ├── __init__.py
 │           ├── database.py
 │           ├── excel.py
 │           └── verhoeff.py
@@ -101,6 +114,9 @@ The backend consists of several parts: main, actions, services, and config.
 The main folder contains the main functions that are responsible for the business logic of the application. These functions are called by the pages in the frontend.
 Currently it includes two files that orchestrate the whole process for updating the SNOMED CT PAT FI database and converting database table to Code Server format.
 These functions utilize the services and actions to perform the necessary operations.
+
+### Intl
+Contains the code for loading the SNOMED CT international rf2 release to the database and the code for creating the snap views that are used for querying.
 
 ### Actions
 Here we have a file for each update type. The files only contain the function that is responsible for the update type. The functions are called by the main functions.

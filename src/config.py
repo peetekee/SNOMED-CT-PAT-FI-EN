@@ -129,14 +129,19 @@ class Config:
         self.__password = password
         self.__database_connection = None
         self.__database_schema = None
+        self.__intl_database_schema = None
         self.__table_name = None
         self.__excel_path = None
         self.__excel_sheet = None
         self.__output_file = None
+        self.__intl_output_file = None
         self.__output_file_path = None
         self.__output_table = None
         self.__version_date = None
         self.__default_expiring_date = None
+        self.__username = None
+        self.__connection_address = None
+        self.__database = None
         self.__langs = ["fi", "sv"]
         self.__empty_values = [None, "", nan]
         self.__cs_table = None
@@ -145,10 +150,18 @@ class Config:
     @property
     def connection(self):
         return self.__database_connection
+    
+    @property
+    def password(self):
+        return self.__password
 
     @property
     def schema(self):
         return self.__database_schema
+    
+    @property
+    def intl_schema(self):
+        return self.__intl_database_schema
 
     @property
     def table(self):
@@ -167,6 +180,10 @@ class Config:
         return self.__output_file
     
     @property
+    def intl_output_file(self):
+        return self.__intl_output_file
+    
+    @property
     def output_file_path(self):
         return self.__output_file_path
 
@@ -182,6 +199,18 @@ class Config:
     def default_expiring_date(self):
         return self.__default_expiring_date
 
+    @property
+    def username(self):
+        return self.__username
+    
+    @property
+    def connection_address(self):
+        return self.__connection_address
+    
+    @property
+    def database(self):
+        return self.__database
+    
     @property
     def langs(self):
         return self.__langs
@@ -203,13 +232,18 @@ class Config:
             print(r"\nCONNECTION = <username;password@connection_address/database>\n")
             print(r"SCHEMA = <schema_name>\n")
         self.__database_schema = os.getenv("SCHEMA")
+        self.__intl_database_schema = os.getenv("INTL_SCHEMA")
         self.__table_name = os.getenv("TABLE")
         self.__excel_path = os.getenv("EXCEL_FILE")
         self.__excel_sheet = os.getenv("EXCEL_SHEET")
         self.__output_file = os.getenv("OUTPUT_FILE")
+        self.__intl_output_file = os.getenv("INTL_OUTPUT_FILE")
         self.__output_table = os.getenv("OUTPUT_TABLE")
         self.__version_date = str(os.getenv("DATE"))
         self.__default_expiring_date = str(os.getenv("DEFAULT_EXPIRING_DATE"))
+        self.__username = os.getenv('USERNAME')
+        self.__connection_address = os.getenv('CONNECTION_ADDRESS')
+        self.__database = os.getenv('DATABASE')
         connection = f"postgresql://{os.getenv('USERNAME')}:{self.__password}@{os.getenv('CONNECTION_ADDRESS')}:{os.getenv('PORT')}/{os.getenv('DATABASE')}"
         self.__database_connection = create_engine(connection)
         self.__cs_table = os.getenv("CS_TABLE")

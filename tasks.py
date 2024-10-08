@@ -3,7 +3,7 @@ from invoke import task
 
 @task
 def start(ctx):
-    ctx.run("streamlit run src/Home.py", pty=True)
+    ctx.run("streamlit run src/Home.py --server.maxUploadSize 900", pty=True)
 
 
 @task
