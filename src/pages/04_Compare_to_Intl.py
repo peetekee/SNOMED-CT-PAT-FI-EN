@@ -47,7 +47,7 @@ if not st.session_state.update_processing_started and not st.session_state.updat
         output_file_name = st.text_input("Output file name")
         start = st.text_input("View Updates Between: start", os.getenv("VIEW_UPDATES_START"))
         end = st.text_input("View Updates Between: end", os.getenv("VIEW_UPDATES_END"))
-        submitted = st.form_submit_button("Update")
+        submitted = st.form_submit_button("Compare")
         if submitted:
             update_env_file("USERNAME", username)
             st.session_state.password = password

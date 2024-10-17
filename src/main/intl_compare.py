@@ -30,9 +30,9 @@ class CompareIntl:
 
         snap_pref = intl_tables["snap_pref"]
 
-        snap_fsn = intl_tables["snap_fsn"]
-        snap_fsn['effectivetime'] = pd.to_datetime(snap_fsn['effectivetime'], format='%Y%m%d')
-        snap_fsn = snap_fsn[(snap_fsn['effectivetime'] >= self.__start) & (snap_fsn['effectivetime'] <= self.__end)]
+        snap_fsn_full = intl_tables["snap_fsn"]
+        snap_fsn_full['effectivetime'] = pd.to_datetime(snap_fsn_full['effectivetime'], format='%Y%m%d')
+        snap_fsn = snap_fsn_full[(snap_fsn_full['effectivetime'] >= self.__start) & (snap_fsn_full['effectivetime'] <= self.__end)]
 
        # Create inactive_conceptid equivalent
         if progress_callback:
@@ -46,7 +46,7 @@ class CompareIntl:
         )
         
         # Taking the relevant columns
-        inactive_conceptid = inactive_conceptid[["CodeId", "A:Active", "A:SNOMEDCT", "A:SCT_Concept_FSN", "effectivetime", "active"]]
+        inactive_conceptid = inactive_conceptid[["CodeId", "A:Active", "A:SNOMEDCT", "A:SCT_Concept_FSN"]]
 
         # Get inactivations reason ids
         reason = inactive_conceptid.merge(
@@ -88,24 +88,21 @@ class CompareIntl:
                     how='left'
                 ).rename(columns={"term":"Association_Type"})
 
-                # Get target concept fsn and pref
+                # Get target concept fsn
                 associations_df = associations_df.merge(
-                    snap_fsn[["conceptid", "term"]],
+                    snap_fsn_full[["conceptid", "term"]],
                     left_on='targetcomponentid',
                     right_on='conceptid',
                     how='left'
-                ).rename(columns={"term":"A:SCT_Concept_FSN"})
+                ).rename(columns={"term":"new_fsn"})
 
-
-                # Problems with US - GB pref
-                # associations_df = associations_df.merge(
-                #     snap_pref[["conceptid", "term"]],
-                #     left_on='targetcomponentid',
-                #     right_on='conceptid',
-                #     how='left'
-                # ).rename(columns={"term":"LongName"})
-
-                associations_df = associations_df[['targetcomponentid', 'Association_Type', 'A:SCT_Concept_FSN']]
+                associations_df = associations_df.merge(
+                    snap_pref[["id", "conceptid", "term"]],
+                    left_on='targetcomponentid',
+                    right_on='conceptid',
+                    how='left'
+                ).rename(columns={"id_y":"term_id", "term":"LongName"})
+                associations_df = associations_df[['targetcomponentid', 'Association_Type', 'new_fsn', 'term_id','LongName']]
                 result = original_row
                 for index, replacement_row in associations_df.iterrows():
                     new_row = original_row.copy()
@@ -113,13 +110,13 @@ class CompareIntl:
                     legacy, sct_id = Get.legacyid(new_row["A:Legacy_ConceptID"].values[0])
                     new_id = f"{legacy}-{replacement_row['targetcomponentid']}"
                     new_row["A:Legacy_ConceptID"] = new_id
-                    new_row["A:Legacy_TermID"] = f"{legacy}-"
-                    new_row["A:SCT_TermID"] = ""
-                    new_row["LongName"] = ""
+                    new_row["A:Legacy_TermID"] = f"{legacy}-{replacement_row['term_id']}"
+                    new_row["A:SCT_TermID"] = replacement_row["term_id"]
+                    new_row["LongName"] = replacement_row["LongName"]
                     new_row["A:SNOMEDCT"] = replacement_row["targetcomponentid"]
-                    new_row["A:SCT_Concept_FSN"] = replacement_row["A:SCT_Concept_FSN"]
+                    new_row["A:SCT_Concept_FSN"] = replacement_row["new_fsn"]
                     new_row["Meta"] = replacement_row["Association_Type"]
-                    result = pd.concat([result, new_row])          
+                    result = pd.concat([result, new_row])  
                 return result
         
         def create_fsn_updates():
