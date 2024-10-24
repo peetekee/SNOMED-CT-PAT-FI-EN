@@ -3,6 +3,25 @@ set
     search_path = snomedct;
 
 -- create snapshot views
+drop view if exists snap_langrefset;
+
+create view snap_langrefset as (
+    select
+        *
+    from
+        langrefset_f tbl
+    where
+        tbl.effectiveTime = (
+            select
+                max(sub.effectiveTime)
+            from
+                langrefset_f sub
+            where
+                sub.id = tbl.id
+        -- Only include US refset
+        ) and tbl.refSetId = '900000000000509007' and tbl.active = '1'
+);
+
 -- concept
 drop view if exists snap_concept;
 
@@ -27,9 +46,9 @@ drop view if exists snap_description;
 
 create view snap_description as (
     select
-        *
+        tbl.*
     from
-        description_f tbl
+        description_f tbl join snap_langrefset rs on tbl.id = rs.referencedComponentId
     where
         tbl.effectiveTime = (
             select
@@ -38,26 +57,7 @@ create view snap_description as (
                 description_f sub
             where
                 sub.id = tbl.id
-        )
-);
-
--- language reference set
-drop view if exists snap_langrefset;
-
-create view snap_langrefset as (
-    select
-        *
-    from
-        langrefset_f tbl
-    where
-        tbl.effectiveTime = (
-            select
-                max(sub.effectiveTime)
-            from
-                langrefset_f sub
-            where
-                sub.id = tbl.id
-        )
+        ) and rs.id is not null
 );
 
 -- attribute value reference set
