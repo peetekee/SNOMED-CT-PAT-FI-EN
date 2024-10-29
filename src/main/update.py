@@ -1,5 +1,5 @@
 import pandas as pd
-from services import Get, Set, Database, Excel
+from services import Get, Set, Database, Excel, clean_spaces
 from actions import Inactivate, New, FSN, NewConcept, NewTerm, Administrative
 from config import Config
 
@@ -74,6 +74,7 @@ class Update:
         if progress_callback:
             progress_callback(70)
         table = Set.empty_status_column(table)
+        table = clean_spaces(table)
         self.__excel.post(table)
         if progress_callback:
             progress_callback(90)
