@@ -26,7 +26,7 @@ class CompareIntl:
 
         snap_attributevaluerefset = intl_tables["snap_attributevaluerefset"]
 
-        snap_associationrefset = intl_tables["snap_associationrefset"]
+        snap_associationrefset = intl_tables["snap_historical_refset"]
 
         snap_pref = intl_tables["snap_pref"]
 
@@ -76,7 +76,7 @@ class CompareIntl:
             original_row = thl_sct_pat[thl_sct_pat["CodeId"] == row["CodeId"]].copy()
             # set reason for inactivation
             inactivation_reason = reason[reason["CodeId"] == row["CodeId"]]["term"].values[0]
-            original_row["Meta"] = inactivation_reason
+            original_row["meta"] = inactivation_reason
             # Get the replacement suggestion if any.
             associations_df = snap_associationrefset[snap_associationrefset['referencedcomponentid'] == row["A:SNOMEDCT"]]
             if not associations_df.empty:
@@ -115,7 +115,7 @@ class CompareIntl:
                     new_row["LongName"] = replacement_row["LongName"]
                     new_row["A:SNOMEDCT"] = replacement_row["targetcomponentid"]
                     new_row["A:SCT_Concept_FSN"] = replacement_row["new_fsn"]
-                    new_row["Meta"] = replacement_row["Association_Type"]
+                    new_row["meta"] = replacement_row["Association_Type"]
                     result = pd.concat([result, new_row])  
                 return result
         
@@ -133,11 +133,11 @@ class CompareIntl:
             if not rows_with_different_values.empty:
                 counter = 1
                 for i, row in rows_with_different_values.iterrows():
-                    row["Meta"] = ""
+                    row["meta"] = ""
                     row.reset_index(drop=True)
                     new_row = row.copy()
                     new_row["status"] = "fsn"
-                    new_row["Meta"] = "New FSN"
+                    new_row["meta"] = "New FSN"
                     new_row["A:SCT_Concept_FSN"] = row["term"]
                     new_row.reset_index(drop=True)
                     if counter == 1:

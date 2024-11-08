@@ -165,3 +165,22 @@ create view snap_synall as (
         and rs.acceptabilityId in ('900000000000549004', '900000000000548007')
         and d.languagecode = 'en'
 );
+
+create view snap_historical_refset as (
+    select
+        ar.*
+	from
+		snap_associationrefset ar
+	where
+		ar.active = '1' and
+		ar.refsetid IN (
+    		select
+    			r.sourceid
+    		from
+    			relationship_f r
+    		where
+    			r.typeid = '116680003' and
+    			r.destinationid = '900000000000522004' and
+    			r.active = '1'
+		)
+)
