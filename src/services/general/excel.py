@@ -44,7 +44,8 @@ class Excel:
     def post_intl_comparison(self, table: 'pd.Dataframe'):
         mask = [
             COLUMNS["code_id"],
-            "Meta",
+            "accept",
+            "meta",
             COLUMNS["status"],
             COLUMNS["tmdc"],
             COLUMNS["lang"],

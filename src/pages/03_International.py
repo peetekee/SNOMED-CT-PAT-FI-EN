@@ -12,6 +12,15 @@ logo_url = os.path.join(dirname, "assets/thl_logo_fi.png")
 
 # Sidebar logo
 st.sidebar.image(logo_url, use_column_width=True)
+st.markdown(
+    r"""
+    <style>
+    .stDeployButton {
+            visibility: hidden;
+        }
+    </style>
+    """, unsafe_allow_html=True
+)
 
 # Ensure .env file exists
 def check_and_create_dotenv(dotenv_path):
