@@ -1,10 +1,7 @@
 import streamlit as st
 from dotenv import load_dotenv, set_key
 import os
-from main import Update
-
-# st.set_page_config(page_title="Update SCT_PAT_FI")
-#
+from main import Update, UpdateIntl
 
 dirname = os.path.dirname(__file__)
 dotenv_path = os.path.join(dirname, "../../.env")
@@ -12,7 +9,16 @@ dotenv_path = os.path.join(dirname, "../../.env")
 logo_url = os.path.join(dirname, "assets/thl_logo_fi.png")
 
 st.sidebar.image(logo_url, use_column_width=True)
-# Load the environment variables from the .env file
+
+st.markdown(
+    r"""
+    <style>
+    .stDeployButton {
+            visibility: hidden;
+        }
+    </style>
+    """, unsafe_allow_html=True
+)
 
 
 def check_and_create_dotenv(dotenv_path):
@@ -21,20 +27,16 @@ def check_and_create_dotenv(dotenv_path):
             pass  # Just create the file if it doesn't exist
 
 
-# Before loading the .env file, check if it exists and create it if it doesn't
 check_and_create_dotenv(dotenv_path)
-# Load the environment variables from the .env file
 load_dotenv(dotenv_path=dotenv_path)
 
 
 def update_env_file(key, value):
-    # Reuse the dotenv_path variable defined earlier
     set_key(dotenv_path, key, value)
 
 
 def save_uploaded_file(uploaded_file):
     if uploaded_file is not None:
-        # Provide a default path if not defined
         save_path = os.path.join(dirname, os.getenv('UPLOAD_PATH'))
         if not os.path.exists(save_path):
             os.makedirs(save_path)
@@ -49,43 +51,39 @@ def update_progress(progress):
     progress_bar.progress(progress)
 
 
-# Streamlit UI
 st.title('Update SNOMED CT PAT FI')
-# Check if processing has been initialized
+
+update_type = st.selectbox("Select Update Type", ["intl-update", "manual-update"])
+
+if 'confirmation_pending' not in st.session_state:
+    st.session_state.confirmation_pending = False
 if 'update_processing_started' not in st.session_state:
     st.session_state.update_processing_started = False
 if 'update_processing_completed' not in st.session_state:
     st.session_state.update_processing_completed = False
 
-
 if not st.session_state.update_processing_started and not st.session_state.update_processing_completed:
-    # Show form and handle submission
     excel_file = st.file_uploader("EXCEL_FILE", type=['xlsx'])
     with st.form("config_form"):
         username = st.text_input("USERNAME", os.getenv("USERNAME"))
         password = st.text_input("PASSWORD", type="password")
-        connection_address = st.text_input(
-            "CONNECTION_ADDRESS", os.getenv("CONNECTION_ADDRESS"))
+        connection_address = st.text_input("CONNECTION_ADDRESS", os.getenv("CONNECTION_ADDRESS"))
         port = st.text_input("PORT", os.getenv("PORT"))
         database = st.text_input("DATABASE", os.getenv("DATABASE"))
         schema = st.text_input("SCHEMA", os.getenv("SCHEMA"))
         table = st.text_input("TABLE", os.getenv("TABLE"))
-        # Handle Excel file upload separately
         excel_sheet = st.text_input("EXCEL_SHEET", os.getenv("EXCEL_SHEET"))
         output_file_name = st.text_input("OUTPUT_FILE_NAME")
         output_table = st.text_input("OUTPUT_TABLE", os.getenv("OUTPUT_TABLE"))
         date = st.text_input("DATE", os.getenv("DATE"))
-        default_expiring_date = st.text_input(
-            "DEFAULT_EXPIRING_DATE", os.getenv("DEFAULT_EXPIRING_DATE"))
+        default_expiring_date = st.text_input("DEFAULT_EXPIRING_DATE", os.getenv("DEFAULT_EXPIRING_DATE"))
         submitted = st.form_submit_button("Update")
+        
         if submitted:
             if excel_file is not None:
-                # Save the uploaded file and get its path
                 file_path = save_uploaded_file(excel_file)
                 if file_path:
-                    # Update the EXCEL_FILE variable in the .env file with the path
                     update_env_file("EXCEL_FILE", file_path)
-            # Update other variables in the .env file
             update_env_file("USERNAME", username)
             st.session_state.password = password
             update_env_file("CONNECTION_ADDRESS", connection_address)
@@ -98,22 +96,40 @@ if not st.session_state.update_processing_started and not st.session_state.updat
             update_env_file("OUTPUT_TABLE", output_table)
             update_env_file("DATE", date)
             update_env_file("DEFAULT_EXPIRING_DATE", default_expiring_date)
-            st.session_state.update_processing_started = True
-            st.rerun()
+
+            # Trigger confirmation popup
+            st.session_state.confirmation_pending = True
+
+if st.session_state.confirmation_pending:
+    st.warning(f"Are you sure you want to proceed with '{update_type}'?")
+    confirm_button = st.button("Yes, proceed")
+    cancel_button = st.button("Cancel")
+    
+    if confirm_button:
+        st.session_state.confirmation_pending = False
+        st.session_state.update_processing_started = True
+        st.session_state.update_type = update_type
+        st.experimental_rerun()
+        
+    elif cancel_button:
+        st.session_state.confirmation_pending = False
+        st.session_state.update_processing_started = False
+
 if st.session_state.update_processing_started:
     load_dotenv(dotenv_path=dotenv_path, override=True)
-    # Processing phase
     progress_bar = st.progress(0)
-    # Initialize and run the processing logic
-    # Ensure this uses updated environment variables if needed
-    main_process = Update(st.session_state.password)
-    st.session_state.password = None  # Clear the password from the session state
+
+    if st.session_state.update_type == "intl-update":
+        main_process = UpdateIntl(st.session_state.password)
+    else:
+        main_process = Update(st.session_state.password)
+
+    st.session_state.password = None
     main_process.run(progress_callback=update_progress)
-    progress_bar.empty()  # Clear the progress bar
+    progress_bar.empty()
     st.session_state.update(update_processing_completed=True, update_processing_started=False)
 
 if st.session_state.update_processing_completed:
-    # Show download button
     processed_file_path = os.getenv("OUTPUT_FILE")
     with open(processed_file_path, "rb") as file:
         st.download_button(
@@ -122,5 +138,4 @@ if st.session_state.update_processing_completed:
             file_name=os.path.basename(os.getenv("OUTPUT_FILE")),
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
-    st.button("Reset", on_click=lambda: st.session_state.update(update_processing_started=False, update_processing_completed=False))
-
+    st.button("Reset", on_click=lambda: st.session_state.update(update_processing_started=False, update_processing_completed=False, confirmation_pending=False))

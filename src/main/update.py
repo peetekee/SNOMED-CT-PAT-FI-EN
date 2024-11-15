@@ -11,7 +11,9 @@ class Update:
     determines the type of updates required, and then applies the updates to the database table. Finally, it writes
     the updated database table to the excel file.
     """
-    def __init__(self, password) -> None:
+    def __init__(self, password, intl=False, table=None) -> None:
+        self.__intl = intl
+        self.__table = table
         self.__config = Config(password)
         self.__excel = Excel(self.__config)
         self.__database = Database(self.__config)
@@ -22,7 +24,10 @@ class Update:
         Returns:
             tuple: A tuple containing the excel and database tables in dataframes
         """
-        excel = self.__excel.get()
+        if self.__intl:
+            excel = self.__table
+        else:
+            excel = self.__excel.get()
         database = self.__database.get()
         return excel, database
 

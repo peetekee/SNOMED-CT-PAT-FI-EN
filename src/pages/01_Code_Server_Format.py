@@ -5,6 +5,16 @@ from main import CSFormat
 
 st.set_page_config(page_title="Code Server Format")
 
+st.markdown(
+    r"""
+    <style>
+    .stDeployButton {
+            visibility: hidden;
+        }
+    </style>
+    """, unsafe_allow_html=True
+)
+
 dirname = os.path.dirname(__file__)
 dotenv_path = os.path.join(dirname, "../../.env")
 

@@ -6,6 +6,15 @@ dirname = os.path.dirname(__file__)
 logo_url = os.path.join(dirname, "pages/assets/thl_logo_fi.png")
 
 st.sidebar.image(logo_url, use_column_width=True)
+st.markdown(
+    r"""
+    <style>
+    .stDeployButton {
+            visibility: hidden;
+        }
+    </style>
+    """, unsafe_allow_html=True
+)
 
 st.markdown(
     """

@@ -4,6 +4,15 @@ from dotenv import load_dotenv
 
 # Set up page configuration
 st.set_page_config(page_title="File Management")
+st.markdown(
+    r"""
+    <style>
+    .stDeployButton {
+            visibility: hidden;
+        }
+    </style>
+    """, unsafe_allow_html=True
+)
 
 # Define directories for upload and download folders
 dirname = os.path.dirname(__file__)

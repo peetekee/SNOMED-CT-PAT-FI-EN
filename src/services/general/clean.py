@@ -1,9 +1,9 @@
 import pandas as pd
 
 
-def clean_spaces(df: pd.DataFrame, codeid_column: str = 'CodeId') -> pd.DataFrame:
+def clean_spaces(df: pd.DataFrame, codeid_column: list = ['CodeId', 'A:KorvaavaKoodi']) -> pd.DataFrame:
     # Filter columns, excluding the specified codeid column
-    columns_to_clean = [col for col in df.columns if col != codeid_column]
+    columns_to_clean = [col for col in df.columns if not col in codeid_column]
 
     for col in columns_to_clean:
         # Remove leading and trailing spaces

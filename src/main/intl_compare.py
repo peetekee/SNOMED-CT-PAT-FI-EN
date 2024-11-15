@@ -76,6 +76,7 @@ class CompareIntl:
             original_row = thl_sct_pat[thl_sct_pat["CodeId"] == row["CodeId"]].copy()
             # set reason for inactivation
             inactivation_reason = reason[reason["CodeId"] == row["CodeId"]]["term"].values[0]
+            row["accept"] = ""
             original_row["meta"] = inactivation_reason
             # Get the replacement suggestion if any.
             associations_df = snap_associationrefset[snap_associationrefset['referencedcomponentid'] == row["A:SNOMEDCT"]]
@@ -133,6 +134,7 @@ class CompareIntl:
             if not rows_with_different_values.empty:
                 counter = 1
                 for i, row in rows_with_different_values.iterrows():
+                    row["accept"] = ""
                     row["meta"] = ""
                     row.reset_index(drop=True)
                     new_row = row.copy()

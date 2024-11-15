@@ -4,6 +4,17 @@ import os
 from main import Check
 
 st.set_page_config(page_title="Check")
+st.markdown("""
+    <style>
+        .reportview-container {
+            margin-top: -2em;
+        }
+        #MainMenu {visibility: hidden;}
+        .stDeployButton {display:none;}
+        footer {visibility: hidden;}
+        #stDecoration {display:none;}
+    </style>
+""", unsafe_allow_html=True)
 
 dirname = os.path.dirname(__file__)
 dotenv_path = os.path.join(dirname, "../../.env")
