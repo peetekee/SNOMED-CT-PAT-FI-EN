@@ -56,8 +56,21 @@ class Get:
                     # set the code_id to int
                     new_row[COLUMNS["code_id"]] = int(new_row[COLUMNS["code_id"]])
                     old_row[COLUMNS["code_id"]] = int(old_row[COLUMNS["code_id"]])
-                    # Create a namedtuple with old and new row
-                    dict_edit_rows[edit_type].append(RowPair(old_row, new_row))
+                    if "accept" in new_row:
+                        if new_row["accept"] == "xterm":
+                            concept_sn2, concept_sct = Get.legacyid(new_row[COLUMNS["legacy_term_id"]])
+                            new_row[COLUMNS["legacy_term_id"]] = f"{concept_sn2}-"
+                            new_row[COLUMNS["term"]] = old_row[COLUMNS["term"]]
+                            dict_edit_rows["new_concept"].append(RowPair(old_row, new_row))
+                        elif new_row["accept"] == "n":
+                            concept_sn2, concept_sct = Get.legacyid(new_row[COLUMNS["legacy_concept_id"]])
+                            new_row[COLUMNS["legacy_concept_id"]] = f"{concept_sn2}-"
+                            new_row[COLUMNS["legacy_term_id"]] = f"{concept_sn2}-"
+                            dict_edit_rows["new_concept"].append(RowPair(old_row, new_row))
+                        else:
+                            dict_edit_rows[edit_type].append(RowPair(old_row, new_row))
+                    else:
+                        dict_edit_rows[edit_type].append(RowPair(old_row, new_row))
         return dict_edit_rows
 
     @staticmethod

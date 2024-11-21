@@ -2,6 +2,7 @@ import pandas as pd
 from .update import Update
 from services import Excel
 from config import Config
+from services import Get
 
 
 class UpdateIntl:
@@ -15,7 +16,7 @@ class UpdateIntl:
     
         # Separate old and new rows
         old_rows = intl_updates[intl_updates['status'].isna()]
-        new_rows = intl_updates[(intl_updates['status'].isin(['new_concept', 'fsn'])) & (intl_updates['accept'] == 'x')]
+        new_rows = intl_updates[(intl_updates['status'].isin(['new_concept', 'fsn'])) & intl_updates['accept'].isin(['x', 'xterm'])]
 
         # Filter old rows to only include those with a matching CodeId in new_rows
         filtered_old_rows = old_rows[old_rows['CodeId'].isin(new_rows['CodeId'])]
@@ -27,8 +28,10 @@ class UpdateIntl:
         else:
             # Concatenate the filtered old rows with new rows, and sort by CodeId
             return pd.concat([filtered_old_rows, new_rows]).sort_values(by='CodeId').reset_index(drop=True)
-    
+        ## if meta is 'xterm', then remove legacy_termid sct part.
+        
+
     def run(self, progress_callback=None):
         update_excel = self.__get_accepted_intl_updates()
-        update_excel = update_excel.drop(columns=['accept', 'meta'])
+        #update_excel = update_excel.drop(columns=['accept', 'meta'])
         Update(password=self.__password, intl=True, table=update_excel).run(progress_callback=progress_callback)
