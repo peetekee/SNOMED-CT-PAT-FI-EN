@@ -47,7 +47,7 @@ COLUMNS = {
 }
 
 EDIT_TYPES = ["new_concept", "new_term",
-              "nationalize_concept", "nationalize_term"]
+              "nationalize_concept", "nationalize_term", "xterm", "n"]
 
 COPY_COLUMNS = [
     COLUMNS["tmdc"],
