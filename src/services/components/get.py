@@ -62,11 +62,11 @@ class Get:
                             new_row[COLUMNS["legacy_term_id"]] = f"{concept_sn2}-"
                             new_row[COLUMNS["term"]] = old_row[COLUMNS["term"]]
                             dict_edit_rows["new_concept"].append(RowPair(old_row, new_row))
-                        elif new_row["accept"] == "n":
-                            concept_sn2, concept_sct = Get.legacyid(new_row[COLUMNS["legacy_concept_id"]])
-                            new_row[COLUMNS["legacy_concept_id"]] = f"{concept_sn2}-"
-                            new_row[COLUMNS["legacy_term_id"]] = f"{concept_sn2}-"
-                            dict_edit_rows["new_concept"].append(RowPair(old_row, new_row))
+                        # elif new_row["accept"] == "n":
+                        #     concept_sn2, concept_sct = Get.legacyid(new_row[COLUMNS["legacy_concept_id"]])
+                        #     new_row[COLUMNS["legacy_concept_id"]] = f"{concept_sn2}-"
+                        #     new_row[COLUMNS["legacy_term_id"]] = f"{concept_sn2}-"
+                        #     dict_edit_rows["new_concept"].append(RowPair(old_row, new_row))
                         else:
                             dict_edit_rows[edit_type].append(RowPair(old_row, new_row))
                     else:
