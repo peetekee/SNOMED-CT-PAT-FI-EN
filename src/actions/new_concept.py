@@ -120,6 +120,9 @@ class NewConcept:
                              ] = new_en_row[COLUMNS["term_id"]]
                 new_lang_row[COLUMNS["term"]] = new_en_row[COLUMNS["term"]]
             else:
+                concept_sn2, concept_sct = Get.legacyid(new_en_row[COLUMNS["legacy_concept_id"]])
+                term_sn2_lang, term_sct_lang = Get.legacyid(new_lang_row[COLUMNS["legacy_term_id"]])
+                new_lang_row[COLUMNS["legacy_term_id"]] = f"{concept_sn2}-{term_sct_lang}"
                 new_lang_row = Set.term_id(
                     new_lang_row, old_lang_row, self.__database, self.__verhoeff, self.__config, True)
             new_lang_row = Set.date(new_lang_row, self.__config)
