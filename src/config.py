@@ -82,6 +82,7 @@ ADMINISTRATIVE_COLUMNS = [
     COLUMNS["parent_concept_id"],
     COLUMNS["parent_concept_fsn"],
     COLUMNS["edit_comment"],
+    COLUMNS["icdo_morfologia"],
     COLUMNS["icdo_term"],
     COLUMNS["icdo_synonyms"],
     COLUMNS["sn2_code"],
